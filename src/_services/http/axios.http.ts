@@ -57,19 +57,6 @@ AXIOS_INSTANCE.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-
-    // Add selected center to headers if available
-    // This allows the backend to filter data by center
-    try {
-      const selectedCenter = localStorage.getItem('selectedCenter');
-      if (selectedCenter) {
-        config.headers['X-Center'] = selectedCenter;
-      }
-    } catch (error) {
-      // Silent fail - center header is optional
-      console.warn('Failed to add center header:', error);
-    }
-
     return config;
   },
   (error) => {
