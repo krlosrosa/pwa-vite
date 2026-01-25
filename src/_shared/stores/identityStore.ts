@@ -28,22 +28,59 @@ interface IdentityState {
 }
 
 /**
+ * Normalizes roles to always be an array.
+ * Handles cases where roles might be null, undefined, string, or already an array.
+ */
+function normalizeRoles(roles: unknown): string[] {
+  if (!roles) {
+    console.warn('[identityStore] Roles is null/undefined, returning empty array');
+    return [];
+  }
+  
+  if (Array.isArray(roles)) {
+    return roles.filter((r): r is string => typeof r === 'string');
+  }
+  
+  if (typeof roles === 'string') {
+    return [roles];
+  }
+  
+  console.warn('[identityStore] Roles is not an array or string, type:', typeof roles, 'value:', roles);
+  return [];
+}
+
+/**
  * Extracts unique centers from roles.
  * Roles format: "admin:expedicao:pavuna" -> extracts "pavuna"
  */
-function extractCentersFromRoles(roles: string[]): string[] {
-// Se roles for null/undefined/não-array, retorna vazio imediatamente
-if (!Array.isArray(roles)) return [];
-
-const centers = new Set<string>();
-for (const role of roles) {
-  const parts = role.split(':');
-  if (parts.length > 0) {
-    const center = parts[parts.length - 1].trim();
-    if (center) centers.add(center);
+function extractCentersFromRoles(roles: unknown): string[] {
+  // Normalize roles to array first
+  const rolesArray = normalizeRoles(roles);
+  
+  if (rolesArray.length === 0) {
+    console.warn('[identityStore] No valid roles found after normalization');
+    return [];
   }
-}
-return Array.from(centers).sort();
+  
+  const centers = new Set<string>();
+  
+  for (const role of rolesArray) {
+    if (typeof role !== 'string') {
+      console.warn('[identityStore] Invalid role type:', typeof role, role);
+      continue;
+    }
+    
+    const parts = role.split(':');
+    if (parts.length > 0) {
+      // Extract the LAST element (the center)
+      const center = parts[parts.length - 1].trim();
+      if (center) {
+        centers.add(center);
+      }
+    }
+  }
+  
+  return Array.from(centers).sort();
 }
 
 export const useIdentityStore = create<IdentityState>()(
@@ -65,8 +102,25 @@ export const useIdentityStore = create<IdentityState>()(
           const response = await AXIOS_INSTANCE.get<InfoMeDtoOutput>('/api/user/info-me');
           const userInfo = response.data;
           
-          // Extract centers from roles
+          // Debug logs to understand API response in production
+          console.log('[identityStore] API Response received:', {
+            hasData: !!userInfo,
+            userId: userInfo?.id,
+            userName: userInfo?.name,
+            rolesType: typeof userInfo?.roles,
+            rolesValue: userInfo?.roles,
+            rolesIsArray: Array.isArray(userInfo?.roles),
+          });
+          
+          // Validate userInfo structure
+          if (!userInfo) {
+            throw new Error('API returned empty user info');
+          }
+          
+          // Extract centers from roles with defensive handling
           const centers = extractCentersFromRoles(userInfo.roles);
+          
+          console.log('[identityStore] Extracted centers:', centers);
           
           // Get current selected center from storage
           const storedCenter = localStorage.getItem(STORAGE_KEY_SELECTED_CENTER);
@@ -76,6 +130,7 @@ export const useIdentityStore = create<IdentityState>()(
           if (centers.length === 1) {
             selectedCenter = centers[0];
             localStorage.setItem(STORAGE_KEY_SELECTED_CENTER, selectedCenter);
+            console.log('[identityStore] Auto-selected center:', selectedCenter);
           }
           
           set({
@@ -86,6 +141,16 @@ export const useIdentityStore = create<IdentityState>()(
             error: null,
           });
         } catch (error) {
+          // Enhanced error logging
+          console.error('[identityStore] Error fetching user info:', error);
+          if (error && typeof error === 'object' && 'response' in error) {
+            const axiosError = error as { response?: { data?: unknown; status?: number } };
+            console.error('[identityStore] API Error details:', {
+              status: axiosError.response?.status,
+              data: axiosError.response?.data,
+            });
+          }
+          
           const err = error instanceof Error ? error : new Error('Failed to fetch user info');
           set({
             isLoading: false,

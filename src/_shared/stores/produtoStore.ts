@@ -30,14 +30,16 @@ const idbStorage = {
       // Se o valor já for uma string (JSON), retorna diretamente
       // Se for um objeto, serializa
       if (value === null || value === undefined) {
-        console.log(`[produto-store] Nenhum valor encontrado para: ${name}`);
+        // This is normal on first load - not an error
+        console.log(`[produto-store] Nenhum valor encontrado para: ${name} (normal em primeira execução)`);
         return null;
       }
       const result = typeof value === 'string' ? value : JSON.stringify(value);
       console.log(`[produto-store] Valor encontrado para: ${name}, tamanho: ${result.length} bytes`);
       return result;
     } catch (error) {
-      console.error('Error getting item from IndexedDB:', error);
+      // IndexedDB might not be available in some contexts (e.g., private browsing)
+      console.warn('[produto-store] Error getting item from IndexedDB (pode ser contexto seguro ou privado):', error);
       return null;
     }
   },

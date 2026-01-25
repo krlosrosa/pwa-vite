@@ -8,7 +8,7 @@ export const AXIOS_INSTANCE = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   timeout: 10000,
   headers: {
-    'Content-Type': 'multipart/form-data',
+    'Content-Type': 'application/json',
   },
 });
 
@@ -20,7 +20,7 @@ export const AXIOS_INSTANCE = axios.create({
   },
 });*/
 
-// Axios interceptor to automatically inject Bearer token from Keycloak and selected center
+// Axios interceptor to automatically inject Bearer token from Keycloak
 AXIOS_INSTANCE.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     let token: string | null = null;
@@ -37,7 +37,7 @@ AXIOS_INSTANCE.interceptors.request.use(
           token = keycloak.token;
         }
       } catch (error) {
-        console.error('Failed to refresh token:', error);
+        console.error('[axios] Failed to refresh token:', error);
         // Token refresh failed, but continue with request (it might still be valid)
         if (keycloak.token) {
           token = keycloak.token;
@@ -57,6 +57,19 @@ AXIOS_INSTANCE.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Only set Content-Type if not already set and if it's a POST/PUT/PATCH request
+    // GET requests don't need Content-Type, and multipart/form-data should be set explicitly
+    if (!config.headers['Content-Type'] && config.method && ['post', 'put', 'patch'].includes(config.method.toLowerCase())) {
+      // Check if it's FormData
+      if (config.data instanceof FormData) {
+        // Don't set Content-Type for FormData - browser will set it with boundary
+        delete config.headers['Content-Type'];
+      } else {
+        config.headers['Content-Type'] = 'application/json';
+      }
+    }
+    
     return config;
   },
   (error) => {
