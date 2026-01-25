@@ -12,7 +12,6 @@ export function useSyncCheckList() {
   const { getAllChecklists, markAsSynced } = useChecklistStore()
 
   async function syncCheckLists() {
-    alert('syncCheckLists');
     const demands = (await getAllChecklists()).filter(d => d.synced === false);
     for (const demand of demands) {
       if (demand.synced === false) {

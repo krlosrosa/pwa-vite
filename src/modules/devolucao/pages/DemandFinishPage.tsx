@@ -28,6 +28,7 @@ export default function DemandFinishPage() {
   const demandaId = params.id as string;
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [isFinalizing, setIsFinalizing] = useState(false);
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
 
   const {
     summary,
@@ -69,7 +70,8 @@ export default function DemandFinishPage() {
       navigate({ to: '/demands' });
     } catch (error) {
       console.error('[DemandFinishPage] Error finalizing demand or syncing:', error);
-      alert('Erro ao finalizar demanda ou sincronizar dados. Tente novamente.');
+      setShowConfirmDialog(false);
+      setShowErrorDialog(true);
     } finally {
       setIsFinalizing(false);
     }
@@ -259,6 +261,32 @@ export default function DemandFinishPage() {
                   Confirmar
                 </>
               )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Error Dialog */}
+      <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-5 w-5" />
+              Erro na Sincronização
+            </DialogTitle>
+            <DialogDescription>
+              Não foi possível sincronizar. Tente mais tarde.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                setShowErrorDialog(false);
+                navigate({ to: '/demands' });
+              }}
+              className="w-full"
+            >
+              OK
             </Button>
           </DialogFooter>
         </DialogContent>

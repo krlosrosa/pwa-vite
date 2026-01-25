@@ -11,7 +11,6 @@ export function useSyncAnomalia() {
   const { getAllAnomalies, markAnomalyAsSynced } = useConferenceStore()
 
   async function syncAnomalias() {
-    alert('syncAnomalias');
     const demands = (await getAllAnomalies()).filter(d => d.synced === false);
     for (const demand of demands) {
       const [natureza, tipo, causa] = demand.description.split(' | ');

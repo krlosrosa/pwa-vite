@@ -116,8 +116,6 @@ export function useDebugData() {
     setConferences([]);
     setAnomalies([]);
     setDemands([]);
-
-    alert('Todos os dados locais foram limpos.');
   }, []);
 
   /**
@@ -140,9 +138,7 @@ export function useDebugData() {
     // Also copy to clipboard if possible
     try {
       await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
-      alert('Dados exportados para o console e copiados para a área de transferência!');
     } catch {
-      alert('Dados exportados para o console!');
     }
   }, [produtos]);
 
