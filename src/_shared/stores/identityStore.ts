@@ -93,84 +93,26 @@ export const useIdentityStore = create<IdentityState>()(
       error: null,
 
       fetchUserInfo: async () => {
-        console.log('[DEBUG-IDENTITY-STORE] ========================================');
-        console.log('[DEBUG-IDENTITY-STORE] Starting fetchUserInfo...');
-        console.log('[DEBUG-IDENTITY-STORE] Base URL:', import.meta.env.VITE_API_URL);
-        console.log('[DEBUG-IDENTITY-STORE] Full endpoint:', `${import.meta.env.VITE_API_URL}/api/user/info-me`);
-        
         set({ isLoading: true, error: null });
         
         try {
           // Call info-me endpoint
           // Note: If Orval hook becomes available, replace this with:
           // const { data } = await useInfoMe();
-          console.log('[DEBUG-IDENTITY-STORE] Making request to /api/user/info-me...');
-          
           const response = await AXIOS_INSTANCE.get<InfoMeDtoOutput>('/api/user/info-me');
-          
-          console.log('[DEBUG-IDENTITY-STORE] ========================================');
-          console.log('[DEBUG-IDENTITY-STORE] Response received!');
-          console.log('[DEBUG-IDENTITY-STORE] Response status:', response.status);
-          console.log('[DEBUG-IDENTITY-STORE] Response headers:', JSON.stringify(response.headers, null, 2));
-          console.log('[DEBUG-IDENTITY-STORE] Response data type:', typeof response.data);
-          
-          // Validação crítica: verificar se a resposta é HTML
-          if (typeof response.data === 'string' && (
-            response.data.trim().startsWith('<!DOCTYPE') ||
-            response.data.trim().startsWith('<html')
-          )) {
-            console.error('[DEBUG-IDENTITY-STORE] ❌ ERRO: Resposta é HTML em vez de JSON!');
-            console.error('[DEBUG-IDENTITY-STORE] BaseURL usada:', response.config.baseURL || AXIOS_INSTANCE.defaults.baseURL);
-            console.error('[DEBUG-IDENTITY-STORE] URL completa:', `${response.config.baseURL || ''}${response.config.url || ''}`);
-            console.error('[DEBUG-IDENTITY-STORE] Primeiros 200 caracteres da resposta HTML:', response.data.substring(0, 200));
-            throw new Error('API retornou HTML em vez de JSON. A baseURL pode estar incorreta ou a requisição está sendo interceptada.');
-          }
-          
-          // Validar se é um objeto válido
-          if (!response.data || typeof response.data !== 'object') {
-            console.error('[DEBUG-IDENTITY-STORE] ❌ ERRO: Resposta não é um objeto válido!');
-            console.error('[DEBUG-IDENTITY-STORE] Tipo recebido:', typeof response.data);
-            console.error('[DEBUG-IDENTITY-STORE] Valor recebido:', response.data);
-            throw new Error('API retornou dados inválidos. Esperado objeto JSON.');
-          }
-          
-          console.log('[DEBUG-IDENTITY-STORE] Response data:', response.data);
-          console.log('[DEBUG-IDENTITY-STORE] Response data (raw):', JSON.stringify(response.data, null, 2));
-          
           const userInfo = response.data;
           
           // Debug logs to understand API response in production
-          console.log('[DEBUG-IDENTITY-STORE] ========================================');
-          console.log('[DEBUG-IDENTITY-STORE] Processing userInfo...');
-          console.log('[DEBUG-IDENTITY-STORE] Has data:', !!userInfo);
-          console.log('[DEBUG-IDENTITY-STORE] User ID:', userInfo?.id);
-          console.log('[DEBUG-IDENTITY-STORE] User Name:', userInfo?.name);
-          console.log('[DEBUG-IDENTITY-STORE] Empresa:', userInfo?.empresa);
-          console.log('[DEBUG-IDENTITY-STORE] ========================================');
-          console.log('[DEBUG-IDENTITY-STORE] ROLES ANALYSIS:');
-          console.log('[DEBUG-IDENTITY-STORE] - Has roles property:', 'roles' in (userInfo || {}));
-          console.log('[DEBUG-IDENTITY-STORE] - Roles value:', userInfo?.roles);
-          console.log('[DEBUG-IDENTITY-STORE] - Roles type:', typeof userInfo?.roles);
-          console.log('[DEBUG-IDENTITY-STORE] - Roles is null:', userInfo?.roles === null);
-          console.log('[DEBUG-IDENTITY-STORE] - Roles is undefined:', userInfo?.roles === undefined);
-          console.log('[DEBUG-IDENTITY-STORE] - Roles is array:', Array.isArray(userInfo?.roles));
-          console.log('[DEBUG-IDENTITY-STORE] - Roles length:', Array.isArray(userInfo?.roles) ? userInfo.roles.length : 'N/A');
-          
-          // Check all properties in userInfo
-          if (userInfo && typeof userInfo === 'object') {
-            console.log('[DEBUG-IDENTITY-STORE] All properties in userInfo:', Object.keys(userInfo));
-            console.log('[DEBUG-IDENTITY-STORE] Full userInfo object:', JSON.stringify(userInfo, null, 2));
-            
-            // Check for roles in different possible locations
-            const userInfoAny = userInfo as unknown as Record<string, unknown>;
-            console.log('[DEBUG-IDENTITY-STORE] Checking alternative role fields:');
-            console.log('[DEBUG-IDENTITY-STORE] - userInfo.role:', userInfoAny.role);
-            console.log('[DEBUG-IDENTITY-STORE] - userInfo.authorities:', userInfoAny.authorities);
-            console.log('[DEBUG-IDENTITY-STORE] - userInfo.permissions:', userInfoAny.permissions);
-            console.log('[DEBUG-IDENTITY-STORE] - userInfo.groups:', userInfoAny.groups);
-          }
-          
-          console.log('[DEBUG-IDENTITY-STORE] ========================================');
+          console.log('[identityStore] API Response received:', {
+            hasData: !!userInfo,
+            userId: userInfo?.id,
+            userName: userInfo?.name,
+            empresa: userInfo?.empresa,
+            rolesType: typeof userInfo?.roles,
+            rolesValue: userInfo?.roles,
+            rolesIsArray: Array.isArray(userInfo?.roles),
+            fullResponse: JSON.stringify(userInfo, null, 2),
+          });
           
           // Validate userInfo structure
           if (!userInfo) {
@@ -179,20 +121,12 @@ export const useIdentityStore = create<IdentityState>()(
           
           // Extract centers from roles with defensive handling
           // If roles is missing, try to extract from other fields or use empty array
-          console.log('[DEBUG-IDENTITY-STORE] ========================================');
-          console.log('[DEBUG-IDENTITY-STORE] Starting center extraction...');
-          
           let centers: string[] = [];
           
           if (userInfo.roles !== null && userInfo.roles !== undefined) {
-            console.log('[DEBUG-IDENTITY-STORE] Roles field exists, extracting centers...');
-            console.log('[DEBUG-IDENTITY-STORE] Roles before extraction:', userInfo.roles);
             centers = extractCentersFromRoles(userInfo.roles);
-            console.log('[DEBUG-IDENTITY-STORE] Centers extracted from roles:', centers);
           } else {
-            console.warn('[DEBUG-IDENTITY-STORE] ⚠️ Roles field is null/undefined!');
-            console.warn('[DEBUG-IDENTITY-STORE] Checking for alternative fields...');
-            
+            console.warn('[identityStore] Roles field is null/undefined in API response. Checking for alternative fields...');
             // Try to extract from other possible fields if roles is missing
             // Some APIs might return roles in a different structure
             if (userInfo && typeof userInfo === 'object') {
@@ -200,26 +134,17 @@ export const useIdentityStore = create<IdentityState>()(
               const userInfoAny: unknown = userInfo;
               if (userInfoAny && typeof userInfoAny === 'object') {
                 const obj = userInfoAny as Record<string, unknown>;
-                console.log('[DEBUG-IDENTITY-STORE] Checking obj.role:', obj.role);
-                console.log('[DEBUG-IDENTITY-STORE] Checking obj.authorities:', obj.authorities);
-                
                 // Check for common alternative field names
                 if (obj.role && Array.isArray(obj.role)) {
-                  console.log('[DEBUG-IDENTITY-STORE] Found roles in "role" field:', obj.role);
                   centers = extractCentersFromRoles(obj.role);
                 } else if (obj.authorities && Array.isArray(obj.authorities)) {
-                  console.log('[DEBUG-IDENTITY-STORE] Found roles in "authorities" field:', obj.authorities);
                   centers = extractCentersFromRoles(obj.authorities);
-                } else {
-                  console.warn('[DEBUG-IDENTITY-STORE] No alternative role fields found!');
                 }
               }
             }
           }
           
-          console.log('[DEBUG-IDENTITY-STORE] Final extracted centers:', centers);
-          console.log('[DEBUG-IDENTITY-STORE] Centers count:', centers.length);
-          console.log('[DEBUG-IDENTITY-STORE] ========================================');
+          console.log('[identityStore] Extracted centers:', centers);
           
           // Get current selected center from storage
           const storedCenter = localStorage.getItem(STORAGE_KEY_SELECTED_CENTER);
