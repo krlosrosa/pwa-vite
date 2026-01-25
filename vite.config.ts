@@ -14,9 +14,17 @@ export default defineConfig({
     port: 3000
   },
   plugins: [devtools(), viteReact(), tailwindcss(), VitePWA({
-    
-    registerType: 'autoUpdate', workbox: {
-      globPatterns: ['**/*.{js,css,html,ico,png,svg}']
+    registerType: 'autoUpdate',
+    workbox: {
+      globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+      // Impede que o Service Worker intercepte chamadas de API
+      navigateFallbackDenylist: [/^\/api/], 
+      runtimeCaching: [
+        {
+          urlPattern: ({ url }) => url.pathname.startsWith('/api'),
+          handler: 'NetworkOnly', // Força a API a sempre buscar na rede, nunca no cache
+        },
+      ],
     }
   })],
 
