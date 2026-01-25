@@ -24,6 +24,7 @@ import DemandFinishPage from './modules/devolucao/pages/DemandFinishPage.tsx'
 import AnomalyRegistrationPage from './modules/devolucao/pages/AnomalyRegistrationPage.tsx'
 import AddExtraItemPage from './modules/devolucao/pages/AddExtraItemPage.tsx'
 import DebugPage from './modules/admin/pages/DebugPage.tsx'
+import HomePage from './modules/homepage/index.tsx'
 
 
 const rootRoute = createRootRoute({
@@ -42,7 +43,7 @@ const rootRoute = createRootRoute({
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  component: () => <div className='bg-red-500'>Olá Mundo</div>,
+  component: HomePage,
 })
 const chekListRoute = createRoute({
   getParentRoute: () => rootRoute,
