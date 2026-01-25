@@ -58,7 +58,7 @@ export function DangerZone({
             <span className="truncate">Limpar Todos os Dados Locais</span>
           </Button>
           <p className="text-[10px] sm:text-xs text-destructive ml-0 sm:ml-6">
-            Remove TODOS os dados do IndexedDB e Zustand stores
+            Remove TODOS os dados do IndexedDB e Zustand stores (exceto produtos)
           </p>
         </div>
       </CardContent>

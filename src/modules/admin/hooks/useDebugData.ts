@@ -92,10 +92,10 @@ export function useDebugData() {
   }, []);
 
   /**
-   * Clear all local data
+   * Clear all local data (except produtos - they are preserved)
    */
   const clearAllData = useCallback(async () => {
-    if (!confirm('Tem certeza que deseja limpar TODOS os dados locais? Esta ação não pode ser desfeita.')) {
+    if (!confirm('Tem certeza que deseja limpar TODOS os dados locais? Esta ação não pode ser desfeita.\n\nNota: Os produtos não serão removidos.')) {
       return;
     }
 
@@ -106,10 +106,10 @@ export function useDebugData() {
       db.demands.clear(),
     ]);
 
-    // Clear Zustand stores
+    // Clear Zustand stores (except produtos)
     useChecklistStore.getState().clearCurrentChecklist();
     useDemandStore.getState().clearCache();
-    useProdutoStore.getState().clear();
+    // useProdutoStore.getState().clear(); // PRODUTOS NÃO SÃO LIMPOS - PRESERVADOS
 
     // Reload data
     setChecklists([]);
