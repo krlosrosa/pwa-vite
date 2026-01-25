@@ -1,22 +1,21 @@
-FROM node:22
+FROM node:22-slim 
+# O slim é mais leve para produção
 
-# Diretório da aplicação
 WORKDIR /app
 
-# Copia arquivos de dependências
-COPY package.json package-lock.json ./
+COPY package*.json ./
 
-# Instala apenas dependências necessárias
-RUN npm i
+# Instala TUDO (inclusive devDeps) porque você precisa do Vite e TSC para o build
+RUN npm install
 
-# Copia o restante do projeto
 COPY . .
 
-# Gera o build de produção
+# Executa o build
 RUN npm run build
 
-# Expõe porta do preview
+# Remove dependências de desenvolvimento após o build para economizar espaço (opcional)
+# RUN npm prune --production
+
 EXPOSE 3000
 
-# Inicia o servidor de preview, obrigatoriamente expondo o host
 CMD ["npm", "run", "serve", "--", "--host", "0.0.0.0"]
