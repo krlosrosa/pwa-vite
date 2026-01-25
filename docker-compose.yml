@@ -4,6 +4,8 @@ services:
   vitepwa:
     build:
       context: .
+      args:
+        - VITE_API_URL=${VITE_API_URL}
       dockerfile: Dockerfile
     container_name: vitepwa
     restart: unless-stopped
