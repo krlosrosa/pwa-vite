@@ -4,8 +4,41 @@ import type { AxiosRequestConfig, AxiosError, InternalAxiosRequestConfig } from 
 import { keycloak } from '../../auth/keycloak-config';
 import { getToken as getStoredToken, hasValidToken } from '../../auth/token-storage';
 
+// Validação e fallback para baseURL
+const getBaseURL = (): string => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  
+  console.log('[DEBUG-AXIOS-CONFIG] Environment check:', {
+    VITE_API_URL: envUrl,
+    isUndefined: envUrl === undefined,
+    isNull: envUrl === null,
+    isEmpty: envUrl === '',
+    type: typeof envUrl,
+    allEnvVars: Object.keys(import.meta.env).filter(key => key.startsWith('VITE_')),
+  });
+  
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim() !== '') {
+    return envUrl.trim();
+  }
+  
+  // Fallback: tentar detectar a URL base da aplicação
+  if (typeof window !== 'undefined') {
+    const origin = window.location.origin;
+    console.warn('[DEBUG-AXIOS-CONFIG] ⚠️ VITE_API_URL não definida! Usando fallback:', origin);
+    // Se estiver em produção e a URL contiver o domínio da PWA, usar o backend conhecido
+    if (origin.includes('pwa-vite.lilog.app') || origin.includes('lilog.app')) {
+      const fallbackUrl = 'https://lilog-back.lilog.app';
+      console.warn('[DEBUG-AXIOS-CONFIG] Usando URL de fallback:', fallbackUrl);
+      return fallbackUrl;
+    }
+  }
+  
+  console.error('[DEBUG-AXIOS-CONFIG] ❌ ERRO CRÍTICO: VITE_API_URL não está definida e não foi possível determinar fallback!');
+  throw new Error('VITE_API_URL não está definida. Configure a variável de ambiente antes do build.');
+};
+
 export const AXIOS_INSTANCE = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: getBaseURL(),
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -109,17 +142,47 @@ AXIOS_INSTANCE.interceptors.response.use(
     if (response.config.url?.includes('/api/user/info-me')) {
       console.log('[DEBUG-AXIOS-RESPONSE] ========================================');
       console.log('[DEBUG-AXIOS-RESPONSE] URL:', response.config.url);
+      console.log('[DEBUG-AXIOS-RESPONSE] Full URL:', `${response.config.baseURL}${response.config.url}`);
       console.log('[DEBUG-AXIOS-RESPONSE] Status:', response.status);
       console.log('[DEBUG-AXIOS-RESPONSE] Status Text:', response.statusText);
       console.log('[DEBUG-AXIOS-RESPONSE] Headers:', JSON.stringify(response.headers, null, 2));
+      console.log('[DEBUG-AXIOS-RESPONSE] Content-Type:', response.headers['content-type']);
       console.log('[DEBUG-AXIOS-RESPONSE] Response Type:', response.config.responseType);
       console.log('[DEBUG-AXIOS-RESPONSE] Response Data Type:', typeof response.data);
+      
+      // CRITICAL: Detect if response is HTML instead of JSON
+      const contentType = response.headers['content-type'] || '';
+      const isHTML = typeof response.data === 'string' && (
+        response.data.trim().startsWith('<!DOCTYPE') ||
+        response.data.trim().startsWith('<html') ||
+        contentType.includes('text/html')
+      );
+      
+      if (isHTML) {
+        console.error('[DEBUG-AXIOS-RESPONSE] ❌ ERRO CRÍTICO: Resposta é HTML em vez de JSON!');
+        console.error('[DEBUG-AXIOS-RESPONSE] Isso indica que:');
+        console.error('[DEBUG-AXIOS-RESPONSE] 1. A baseURL pode estar incorreta ou undefined');
+        console.error('[DEBUG-AXIOS-RESPONSE] 2. O Service Worker pode estar interceptando a requisição');
+        console.error('[DEBUG-AXIOS-RESPONSE] 3. A requisição está sendo redirecionada para a página HTML');
+        console.error('[DEBUG-AXIOS-RESPONSE] BaseURL configurada:', response.config.baseURL);
+        console.error('[DEBUG-AXIOS-RESPONSE] Primeiros 500 caracteres da resposta:', response.data.substring(0, 500));
+        
+        // Transformar o erro para que seja tratado adequadamente
+        const error = new Error('API retornou HTML em vez de JSON. Verifique a configuração da baseURL.');
+        (error as any).isHTMLResponse = true;
+        (error as any).htmlContent = response.data;
+        (error as any).baseURL = response.config.baseURL;
+        return Promise.reject(error);
+      }
+      
       console.log('[DEBUG-AXIOS-RESPONSE] Response Data:', response.data);
       console.log('[DEBUG-AXIOS-RESPONSE] Response Data (stringified):', JSON.stringify(response.data, null, 2));
-      console.log('[DEBUG-AXIOS-RESPONSE] Response Data Keys:', Object.keys(response.data || {}));
       
-      // Deep inspection of roles field
-      if (response.data) {
+      // Só processar se for um objeto (JSON válido)
+      if (response.data && typeof response.data === 'object' && !Array.isArray(response.data)) {
+        console.log('[DEBUG-AXIOS-RESPONSE] Response Data Keys:', Object.keys(response.data));
+        
+        // Deep inspection of roles field
         console.log('[DEBUG-AXIOS-RESPONSE] Has roles property:', 'roles' in response.data);
         console.log('[DEBUG-AXIOS-RESPONSE] Roles value:', response.data.roles);
         console.log('[DEBUG-AXIOS-RESPONSE] Roles type:', typeof response.data.roles);

@@ -113,6 +113,27 @@ export const useIdentityStore = create<IdentityState>()(
           console.log('[DEBUG-IDENTITY-STORE] Response status:', response.status);
           console.log('[DEBUG-IDENTITY-STORE] Response headers:', JSON.stringify(response.headers, null, 2));
           console.log('[DEBUG-IDENTITY-STORE] Response data type:', typeof response.data);
+          
+          // Validação crítica: verificar se a resposta é HTML
+          if (typeof response.data === 'string' && (
+            response.data.trim().startsWith('<!DOCTYPE') ||
+            response.data.trim().startsWith('<html')
+          )) {
+            console.error('[DEBUG-IDENTITY-STORE] ❌ ERRO: Resposta é HTML em vez de JSON!');
+            console.error('[DEBUG-IDENTITY-STORE] BaseURL usada:', response.config.baseURL || AXIOS_INSTANCE.defaults.baseURL);
+            console.error('[DEBUG-IDENTITY-STORE] URL completa:', `${response.config.baseURL || ''}${response.config.url || ''}`);
+            console.error('[DEBUG-IDENTITY-STORE] Primeiros 200 caracteres da resposta HTML:', response.data.substring(0, 200));
+            throw new Error('API retornou HTML em vez de JSON. A baseURL pode estar incorreta ou a requisição está sendo interceptada.');
+          }
+          
+          // Validar se é um objeto válido
+          if (!response.data || typeof response.data !== 'object') {
+            console.error('[DEBUG-IDENTITY-STORE] ❌ ERRO: Resposta não é um objeto válido!');
+            console.error('[DEBUG-IDENTITY-STORE] Tipo recebido:', typeof response.data);
+            console.error('[DEBUG-IDENTITY-STORE] Valor recebido:', response.data);
+            throw new Error('API retornou dados inválidos. Esperado objeto JSON.');
+          }
+          
           console.log('[DEBUG-IDENTITY-STORE] Response data:', response.data);
           console.log('[DEBUG-IDENTITY-STORE] Response data (raw):', JSON.stringify(response.data, null, 2));
           
