@@ -14,6 +14,7 @@ services:
 
     environment:
       - VITE_PWA_HOST=${VITE_PWA_HOST}
+      - VITE_API_URL=${VITE_API_URL}
 
     labels:
       # Habilita o Traefik
