@@ -5,9 +5,6 @@ import { useDemandWorkflow } from '@/hooks/logic/use-demand-workflow';
 import { useChecklistStore } from '@/_shared/stores/checklistStore';
 import { useDemandStore } from '@/_shared/stores/demandStore';
 import { useIdentityStore } from '@/_shared/stores/identityStore';
-import { useSyncDemand } from '@/hooks/logic/use-sync-demand';
-import { useSyncCheckList } from '@/hooks/logic/use-sync-check-list';
-import { useSyncConferencia } from '@/hooks/logic/use-sync-conferencia';
 import { useSyncAnomalia } from '@/hooks/logic/use-sync-anomalia';
 
 /**
@@ -51,11 +48,8 @@ export function useDemandList(centerId?: string): UseDemandListReturn {
   
   const { data: demands, isLoading, isError, refetch } = useListarDemandasEmAbertoDevolucaoMobile(effectiveCenterId);
   const { handleDemandSelection } = useDemandWorkflow();
-  const { syncDemands } = useSyncDemand();
-  const { syncCheckLists } = useSyncCheckList();
   const { loadChecklist } = useChecklistStore();
   const { syncAnomalias } = useSyncAnomalia();
-  const { syncConferences } = useSyncConferencia();
   const { loadDemand, saveDemand } = useDemandStore();
 
   const [draftChecklists, setDraftChecklists] = useState<Set<string>>(new Set());

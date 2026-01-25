@@ -92,12 +92,12 @@ export function useValidate() {
           demandaId: demandaIdNumber,
           doca: dock,
         }
+      }).then(() => {
+        console.log('Demand started successfully:', demandaId);
       }).catch((error) => {
         console.error('Error starting demand:', error);
         alert('Erro ao iniciar conferência. Tente novamente.');
         throw error;
-      }).then((data) => {
-        console.log('Demand started successfully:', demandaId);
       });
 
       // Check if checklist already exists

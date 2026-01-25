@@ -37,8 +37,8 @@ export function useDemandWorkflow() {
       // If status is AGUARDANDO_CONFERENCIA, always navigate to validation page first
       if (status === 'AGUARDANDO_CONFERENCIA') {
         navigate({ 
-          to: '/demands/$id/validate' as any, 
-          params: { id: demandId } 
+          to: '/demands/$id/validate',
+          params: { id: demandId } as any
         });
         return;
       }
@@ -50,8 +50,8 @@ export function useDemandWorkflow() {
       // If status is EM_CONFERENCIA but no validation data exists, still go to validation
       if (status === 'EM_CONFERENCIA' && !hasValidationData) {
         navigate({ 
-          to: '/demands/$id/validate' as any, 
-          params: { id: demandId } 
+          to: '/demands/$id/validate',
+          params: { id: demandId } as any
         });
         return;
       }
@@ -70,8 +70,8 @@ export function useDemandWorkflow() {
         } else {
           // Checklist exists but incomplete - navigate to checklist flow
           navigate({ 
-            to: '/demands/$id/checklist' as any, 
-            params: { id: demandId } 
+            to: '/demands/$id/checklist',
+            params: { id: demandId } as any
           });
         }
       } else {
@@ -79,15 +79,15 @@ export function useDemandWorkflow() {
         if (!hasValidationData) {
           // No validation data - navigate to validation first
           navigate({ 
-            to: '/demands/$id/validate' as any, 
-            params: { id: demandId } 
+            to: '/demands/$id/validate',
+            params: { id: demandId } as any
           });
         } else {
           // Validation data exists - initialize checklist and navigate to checklist
           await initializeChecklist(demandId);
           navigate({ 
-            to: '/demands/$id/checklist' as any, 
-            params: { id: demandId } 
+            to: '/demands/$id/checklist',
+            params: { id: demandId } as any
           });
         }
       }

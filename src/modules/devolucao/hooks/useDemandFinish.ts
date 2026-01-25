@@ -1,8 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useConferenceStore } from '@/_shared/stores/conferenceStore';
-import { useChecklistStore } from '@/_shared/stores/checklistStore';
-import { useDemandStore } from '@/_shared/stores/demandStore';
 
 /**
  * Interface for divergent item

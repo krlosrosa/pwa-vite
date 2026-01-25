@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { db, type ChecklistRecord, type ConferenceRecord, type AnomalyRecord, type DemandRecord } from '@/_shared/db/database';
 import { useProdutoStore } from '@/_shared/stores/produtoStore';
 import { useChecklistStore } from '@/_shared/stores/checklistStore';
-import { useConferenceStore } from '@/_shared/stores/conferenceStore';
 import { useDemandStore } from '@/_shared/stores/demandStore';
 
 /**

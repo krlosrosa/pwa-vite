@@ -182,7 +182,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
             }
           } else if (hasValidToken()) {
             // Use stored token
-            const storedTokenValue = getToken();
             const storedUserValue = getUser();
             if (storedUserValue) {
               setUser(storedUserValue);
