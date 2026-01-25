@@ -15,18 +15,26 @@ export function ConferenceForm({
   boxQuantity,
   checkedQuantity,
   lote,
+  productValidationCode,
+  isExtraItem,
+  isValidProductCode,
   onBoxQuantityChange,
   onCheckedQuantityChange,
   onLoteChange,
+  onProductValidationCodeChange,
   onQuickSetExpected,
 }: {
   conference: ConferenceRecord;
   boxQuantity: string;
   checkedQuantity: string;
   lote: string;
+  productValidationCode: string;
+  isExtraItem: boolean;
+  isValidProductCode: boolean;
   onBoxQuantityChange: (value: string) => void;
   onCheckedQuantityChange: (value: string) => void;
   onLoteChange: (value: string) => void;
+  onProductValidationCodeChange: (value: string) => void;
   onQuickSetExpected: () => void;
 }) {
   return (
@@ -37,6 +45,48 @@ export function ConferenceForm({
           Conferência
         </CardTitle>
         <div className="space-y-4">
+          {/* Validação do Produto (apenas para produtos não extras) */}
+          {!isExtraItem && (
+            <div className="space-y-2">
+              <Label htmlFor="productValidationCode">
+                Validar Produto <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="productValidationCode"
+                type="text"
+                value={productValidationCode}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  onProductValidationCodeChange(value);
+                }}
+                onBlur={(e) => {
+                  // Trim on blur to remove extra spaces
+                  const trimmed = e.target.value.trim();
+                  if (trimmed !== productValidationCode) {
+                    onProductValidationCodeChange(trimmed);
+                  }
+                }}
+                placeholder="Digite o SKU, EAN ou DUM do produto"
+                className={cn(
+                  'text-lg font-semibold',
+                  productValidationCode && !isValidProductCode && 'border-destructive'
+                )}
+                autoComplete="off"
+                autoFocus={false}
+              />
+              {productValidationCode && !isValidProductCode && (
+                <p className="text-xs text-destructive">
+                  Código não confere. Verifique o SKU, EAN ou DUM do produto.
+                </p>
+              )}
+              {isValidProductCode && (
+                <p className="text-xs text-green-600 flex items-center gap-1">
+                  <Check className="h-3 w-3" />
+                  Produto validado com sucesso
+                </p>
+              )}
+            </div>
+          )}
           {/* Quantidade de Caixas */}
           <div className="space-y-2">
             <Label htmlFor="boxQuantity">Quantidade de Caixas</Label>

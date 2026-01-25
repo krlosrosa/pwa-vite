@@ -99,14 +99,12 @@ const addExtraItemRoute = createRoute({
   component:  AddExtraItemPage,
 })
 
-// Debug route - only available in development
-const debugRoute = import.meta.env.DEV
-  ? createRoute({
-      getParentRoute: () => rootRoute,
-      path: '/debug',
-      component: DebugPage,
-    })
-  : null
+// Debug route - available in production (hidden access)
+const debugRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/debug',
+  component: DebugPage,
+})
 
 const routeTree = rootRoute.addChildren(
   [
@@ -120,7 +118,7 @@ const routeTree = rootRoute.addChildren(
     demandFinishRoute,
     anomalyRegistrationRoute,
     addExtraItemRoute,
-    ...(debugRoute ? [debugRoute] : []),
+    debugRoute,
   ] as const
 )
 

@@ -19,10 +19,14 @@ export default function ItemConferencePage() {
     checkedQuantity,
     boxQuantity,
     lote,
+    productValidationCode,
+    isExtraItem,
+    isValidProductCode,
     isValid,
     setCheckedQuantity,
     setBoxQuantity,
     setLote,
+    setProductValidationCode,
     handleQuickSetExpected,
     handleConfirmConference,
     handleNavigateToAnomaly,
@@ -66,9 +70,13 @@ export default function ItemConferencePage() {
           boxQuantity={boxQuantity}
           checkedQuantity={checkedQuantity}
           lote={lote}
+          productValidationCode={productValidationCode}
+          isExtraItem={isExtraItem}
+          isValidProductCode={isValidProductCode}
           onBoxQuantityChange={setBoxQuantity}
           onCheckedQuantityChange={setCheckedQuantity}
           onLoteChange={setLote}
+          onProductValidationCodeChange={setProductValidationCode}
           onQuickSetExpected={handleQuickSetExpected}
         />
 

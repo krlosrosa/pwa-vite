@@ -10,7 +10,7 @@ import type { ChecklistRecord, ConferenceRecord, AnomalyRecord, DemandRecord } f
 
 /**
  * Debug/Diagnostic page for monitoring local data (Dexie) and state (Zustand)
- * Only accessible in development mode
+ * Accessible via hidden button in UserMenu (production-ready)
  */
 export default function DebugPage() {
   const {

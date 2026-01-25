@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, Building2, LogOut, Check, RefreshCw } from 'lucide-react';
+import { User, Building2, LogOut, Check, RefreshCw, Bug } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { Button } from '@/_shared/components/ui/button';
 import { Badge } from '@/_shared/components/ui/badge';
@@ -213,7 +213,7 @@ export function UserMenu() {
           </div>
 
           {/* Logout Button */}
-          <SheetFooter className="px-4 pb-4 pt-4 border-t">
+          <SheetFooter className="px-4 pb-4 pt-4 border-t flex-col gap-2">
             <Button
               variant="destructive"
               className="w-full h-12"
@@ -222,6 +222,19 @@ export function UserMenu() {
               <LogOut className="h-4 w-4 mr-2" />
               Sair da Conta
             </Button>
+            {/* Hidden Debug Button - Very discreet */}
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                navigate({ to: '/debug' });
+              }}
+              className="text-xs text-muted-foreground/30 hover:text-muted-foreground/50 transition-colors flex items-center gap-1 px-2 py-1"
+              aria-label="Debug"
+            >
+              <Bug className="h-2.5 w-2.5" />
+              <span className="opacity-0 w-0 overflow-hidden">Debug</span>
+            </button>
           </SheetFooter>
         </SheetContent>
       </Sheet>
