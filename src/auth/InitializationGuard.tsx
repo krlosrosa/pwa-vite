@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useMemo, type ReactNode } from 'react';
 import { useAuth } from './auth-provider';
 import { useIdentityStore } from '@/_shared/stores/identityStore';
 import { Loader2, Building2 } from 'lucide-react';
@@ -35,6 +35,11 @@ export function InitializationGuard({ children }: InitializationGuardProps) {
       });
     }
   }, [authenticated, user, isLoading, error, fetchUserInfo]);
+
+  // Ensure availableCenters is always an array before using .map()
+  const safeAvailableCenters = useMemo(() => {
+    return Array.isArray(availableCenters) ? availableCenters : [];
+  }, [availableCenters]);
 
   // Show loading while checking authentication or fetching user info
   if (!authenticated || isLoading) {
@@ -76,8 +81,39 @@ export function InitializationGuard({ children }: InitializationGuardProps) {
     );
   }
 
+  // If user is loaded but no centers found (API issue)
+  if (user && safeAvailableCenters.length === 0) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-destructive">Centros não encontrados</CardTitle>
+            <CardDescription>
+              Não foi possível identificar os centros disponíveis para este usuário.
+              Verifique se o usuário possui roles configuradas corretamente.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Por favor, entre em contato com o suporte ou tente fazer logout e login novamente.
+            </p>
+            <Button
+              onClick={() => {
+                useIdentityStore.setState({ error: null });
+                fetchUserInfo();
+              }}
+              className="w-full"
+            >
+              Tentar Novamente
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+  
   // If user is loaded but no center selected (and multiple centers available)
-  if (user && !selectedCenter && availableCenters.length > 1) {
+  if (user && !selectedCenter && safeAvailableCenters.length > 1) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md">
@@ -91,7 +127,7 @@ export function InitializationGuard({ children }: InitializationGuardProps) {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            {availableCenters.map((center) => (
+            {safeAvailableCenters.map((center) => (
               <Button
                 key={center}
                 onClick={() => setSelectedCenter(center)}
@@ -109,7 +145,7 @@ export function InitializationGuard({ children }: InitializationGuardProps) {
   }
 
   // If user is loaded and center is selected (or only one center), render children
-  if (user && (selectedCenter || availableCenters.length <= 1)) {
+  if (user && (selectedCenter || safeAvailableCenters.length <= 1)) {
     return <>{children}</>;
   }
 

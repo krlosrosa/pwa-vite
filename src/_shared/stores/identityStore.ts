@@ -107,9 +107,11 @@ export const useIdentityStore = create<IdentityState>()(
             hasData: !!userInfo,
             userId: userInfo?.id,
             userName: userInfo?.name,
+            empresa: userInfo?.empresa,
             rolesType: typeof userInfo?.roles,
             rolesValue: userInfo?.roles,
             rolesIsArray: Array.isArray(userInfo?.roles),
+            fullResponse: JSON.stringify(userInfo, null, 2),
           });
           
           // Validate userInfo structure
@@ -118,7 +120,29 @@ export const useIdentityStore = create<IdentityState>()(
           }
           
           // Extract centers from roles with defensive handling
-          const centers = extractCentersFromRoles(userInfo.roles);
+          // If roles is missing, try to extract from other fields or use empty array
+          let centers: string[] = [];
+          
+          if (userInfo.roles !== null && userInfo.roles !== undefined) {
+            centers = extractCentersFromRoles(userInfo.roles);
+          } else {
+            console.warn('[identityStore] Roles field is null/undefined in API response. Checking for alternative fields...');
+            // Try to extract from other possible fields if roles is missing
+            // Some APIs might return roles in a different structure
+            if (userInfo && typeof userInfo === 'object') {
+              // Use type-safe property access
+              const userInfoAny: unknown = userInfo;
+              if (userInfoAny && typeof userInfoAny === 'object') {
+                const obj = userInfoAny as Record<string, unknown>;
+                // Check for common alternative field names
+                if (obj.role && Array.isArray(obj.role)) {
+                  centers = extractCentersFromRoles(obj.role);
+                } else if (obj.authorities && Array.isArray(obj.authorities)) {
+                  centers = extractCentersFromRoles(obj.authorities);
+                }
+              }
+            }
+          }
           
           console.log('[identityStore] Extracted centers:', centers);
           
@@ -133,12 +157,22 @@ export const useIdentityStore = create<IdentityState>()(
             console.log('[identityStore] Auto-selected center:', selectedCenter);
           }
           
+          // Ensure availableCenters is always an array
+          const safeCenters = Array.isArray(centers) ? centers : [];
+          
           set({
             user: userInfo,
-            availableCenters: centers,
+            availableCenters: safeCenters,
             selectedCenter,
             isLoading: false,
             error: null,
+          });
+          
+          console.log('[identityStore] State updated:', {
+            hasUser: !!userInfo,
+            centersCount: safeCenters.length,
+            centers: safeCenters,
+            selectedCenter,
           });
         } catch (error) {
           // Enhanced error logging
@@ -181,6 +215,16 @@ export const useIdentityStore = create<IdentityState>()(
       partialize: (state) => ({
         selectedCenter: state.selectedCenter,
       }),
+      // Ensure availableCenters is always an array when rehydrating from storage
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          // Ensure availableCenters is always an array
+          if (!Array.isArray(state.availableCenters)) {
+            console.warn('[identityStore] availableCenters was not an array, fixing...');
+            state.availableCenters = [];
+          }
+        }
+      },
     }
   )
 );
