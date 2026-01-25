@@ -141,7 +141,7 @@ export const useIdentityStore = create<IdentityState>()(
             console.log('[DEBUG-IDENTITY-STORE] Full userInfo object:', JSON.stringify(userInfo, null, 2));
             
             // Check for roles in different possible locations
-            const userInfoAny = userInfo as Record<string, unknown>;
+            const userInfoAny = userInfo as unknown as Record<string, unknown>;
             console.log('[DEBUG-IDENTITY-STORE] Checking alternative role fields:');
             console.log('[DEBUG-IDENTITY-STORE] - userInfo.role:', userInfoAny.role);
             console.log('[DEBUG-IDENTITY-STORE] - userInfo.authorities:', userInfoAny.authorities);
