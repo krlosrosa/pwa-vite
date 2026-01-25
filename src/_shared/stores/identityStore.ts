@@ -32,20 +32,18 @@ interface IdentityState {
  * Roles format: "admin:expedicao:pavuna" -> extracts "pavuna"
  */
 function extractCentersFromRoles(roles: string[]): string[] {
-  const centers = new Set<string>();
-  
-  for (const role of roles) {
-    const parts = role.split(':');
-    if (parts.length > 0) {
-      // Extract the LAST element (the center)
-      const center = parts[parts.length - 1].trim();
-      if (center) {
-        centers.add(center);
-      }
-    }
+// Se roles for null/undefined/não-array, retorna vazio imediatamente
+if (!Array.isArray(roles)) return [];
+
+const centers = new Set<string>();
+for (const role of roles) {
+  const parts = role.split(':');
+  if (parts.length > 0) {
+    const center = parts[parts.length - 1].trim();
+    if (center) centers.add(center);
   }
-  
-  return Array.from(centers).sort();
+}
+return Array.from(centers).sort();
 }
 
 export const useIdentityStore = create<IdentityState>()(
