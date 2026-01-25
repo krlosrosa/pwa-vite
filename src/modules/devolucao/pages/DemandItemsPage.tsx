@@ -1,0 +1,134 @@
+import { CheckCircle, Package, RefreshCw, WifiOff, Plus } from 'lucide-react';
+import { useParams } from '@tanstack/react-router';
+import { PageContainer } from '@/_shared/components/layout/PageContainer';
+import { PageHeader } from '@/_shared/components/layout/PageHeader';
+import { BottomActionBar } from '@/_shared/components/layout/BottomActionBar';
+import { EmptyState } from '@/_shared/components/ui/EmptyState';
+import { Button } from '@/_shared/components/ui/button';
+import { Switch } from '@/_shared/components/ui/switch';
+import { Label } from '@/_shared/components/ui/label';
+import { useDemandItems } from '../hooks/useDemandItems';
+import { FilterInput } from '../components/FilterInput';
+import { ItemCard } from '../components/ItemCard';
+
+export default function DemandItemsPage() {
+  const params = useParams({ strict: false });
+  const demandaId = params.id as string;
+
+  const {
+    displayItems,
+    stats,
+    filters,
+    isLoadingApi,
+    isApiError,
+    hasLocalData,
+    isSyncing,
+    toggleFilter,
+    setSearchFilter,
+    navigateToConference,
+    navigateToAddExtra,
+    handleFinishConference,
+    refetchApiItems,
+  } = useDemandItems(demandaId);
+
+  const totalCount = stats.total;
+  const checkedCount = stats.checked;
+  const canFinish = checkedCount > 0;
+
+    return (
+      <PageContainer hasBottomBar={canFinish}>
+        <PageHeader
+          title="Itens da Demanda"
+          subtitle={`#${demandaId || 'N/A'} • ${checkedCount}/${totalCount} conferidos`}
+          showBack
+          rightContent={
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={navigateToAddExtra}
+              className="gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Adicionar Item Extra
+            </Button>
+          }
+        />
+
+        <div className="p-4 space-y-4">
+          <FilterInput
+            placeholder="Buscar por SKU ou descrição..."
+            value={filters.searchTerm}
+            onChange={setSearchFilter}
+          />
+
+          <div className="flex items-center justify-between">
+            <Label htmlFor="show-checked" className="text-sm text-muted-foreground">
+              Mostrar apenas conferidos
+            </Label>
+            <Switch
+              id="show-checked"
+              checked={filters.showOnlyChecked}
+              onCheckedChange={toggleFilter}
+            />
+          </div>
+
+          {isLoadingApi && !hasLocalData && !isApiError ? (
+            <div className="p-4 text-center text-muted-foreground">
+              Carregando itens...
+            </div>
+          ) : displayItems.length === 0 ? (
+            isApiError && !hasLocalData ? (
+              <EmptyState
+                icon={<WifiOff className="h-8 w-8" />}
+                title="Offline e sem dados locais"
+                description="Não foi possível carregar os itens e não há dados salvos localmente."
+                action={
+                  <Button onClick={() => refetchApiItems()}>
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Tentar Novamente
+                  </Button>
+                }
+              />
+            ) : (
+              <EmptyState
+                icon={<Package className="h-8 w-8" />}
+                title={filters.searchTerm ? 'Nenhum item encontrado' : 'Nenhum item'}
+                description={filters.searchTerm ? 'Tente buscar por outro termo.' : 'Não há itens nesta demanda.'}
+              />
+            )
+          ) : (
+            <div className="space-y-3">
+              {displayItems.map((item) => (
+                <ItemCard
+                  key={item.id}
+                  item={item}
+                  onClick={() => navigateToConference(item.id)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+          <BottomActionBar>
+            <Button
+              className="flex-1"
+              onClick={handleFinishConference}
+              disabled={isSyncing}
+            >
+              {isSyncing ? (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  Sincronizando...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Finalizar Conferência
+                </>
+              )}
+            </Button>
+          </BottomActionBar>
+      </PageContainer>
+    );
+  }

@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  vitepwa:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vitepwa
+    restart: unless-stopped
+    
+    # Porta interna que seu app expõe (ajuste se necessário)
+    expose:
+      - "3000"
+
+    environment:
+      - VITE_PWA_HOST=${VITE_PWA_HOST}
+
+    labels:
+      # Habilita o Traefik
+      - "traefik.enable=true"
+
+      # Router
+      - "traefik.http.routers.vitepwa.rule=Host(`${VITE_PWA_HOST}`)"
+      - "traefik.http.routers.vitepwa.entrypoints=websecure"
+      - "traefik.http.routers.vitepwa.service=vitepwa-service"
+
+      # TLS
+      - "traefik.http.routers.vitepwa.tls=true"
+      - "traefik.http.routers.vitepwa.tls.certresolver=letsencrypt"
+
+      # Load balancer → porta interna
+      - "traefik.http.services.vitepwa-service.loadbalancer.server.port=3000"
+
+    networks:
+      - proxy
+
+# Redes externas
+networks:
+  proxy:
+    external: true
