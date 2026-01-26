@@ -6,15 +6,9 @@
  * OpenAPI spec version: 1.0
  */
 
-export interface AddCheckListDto {
+export interface MultipleFilesDto {
+  /** Foto do baú aberto */
+  fotoAberto: Blob;
   /** Foto do baú fechado */
-  fotoBauAberto: Blob;
-  /** Foto do baú fechado */
-  fotoBauFechado: Blob;
-  demandaId: string;
-  /** Temperatura do Baú */
-  temperaturaBau: string;
-  /** Temperatura do Produto */
-  temperaturaProduto: string;
-  anomalias?: string;
+  fotoFechado: Blob;
 }

@@ -50,11 +50,20 @@ export const addCheckListDevolucaoMobile = (
  options?: SecondParameter<typeof axiosFetcher>,signal?: AbortSignal
 ) => {
       
-      
+      const formData = new FormData();
+formData.append(`fotoBauAberto`, addCheckListDto.fotoBauAberto)
+formData.append(`fotoBauFechado`, addCheckListDto.fotoBauFechado)
+formData.append(`demandaId`, addCheckListDto.demandaId)
+formData.append(`temperaturaBau`, addCheckListDto.temperaturaBau)
+formData.append(`temperaturaProduto`, addCheckListDto.temperaturaProduto)
+if(addCheckListDto.anomalias !== undefined) {
+ formData.append(`anomalias`, addCheckListDto.anomalias)
+ }
+
       return axiosFetcher<string>(
       {url: `/api/devolucao-mobile/add-check-list/${demandaId}`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: addCheckListDto, signal
+      headers: {'Content-Type': 'multipart/form-data', },
+       data: formData, signal
     },
       options);
     }
@@ -578,11 +587,25 @@ export const addAnomaliaDevolucao = (
  options?: SecondParameter<typeof axiosFetcher>,signal?: AbortSignal
 ) => {
       
-      
+      const formData = new FormData();
+formData.append(`demandaId`, anomaliaDevolucaoDto.demandaId.toString())
+formData.append(`sku`, anomaliaDevolucaoDto.sku)
+formData.append(`descricao`, anomaliaDevolucaoDto.descricao)
+formData.append(`lote`, anomaliaDevolucaoDto.lote)
+formData.append(`tipo`, anomaliaDevolucaoDto.tipo)
+formData.append(`natureza`, anomaliaDevolucaoDto.natureza)
+formData.append(`causa`, anomaliaDevolucaoDto.causa)
+if(anomaliaDevolucaoDto.tratado !== undefined) {
+ formData.append(`tratado`, anomaliaDevolucaoDto.tratado.toString())
+ }
+formData.append(`quantidadeCaixas`, anomaliaDevolucaoDto.quantidadeCaixas.toString())
+formData.append(`quantidadeUnidades`, anomaliaDevolucaoDto.quantidadeUnidades.toString())
+anomaliaDevolucaoDto.imagens.forEach(value => formData.append(`imagens`, value));
+
       return axiosFetcher<void>(
       {url: `/api/devolucao-mobile/add-anomalia-devolucao`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: anomaliaDevolucaoDto, signal
+      headers: {'Content-Type': 'multipart/form-data', },
+       data: formData, signal
     },
       options);
     }

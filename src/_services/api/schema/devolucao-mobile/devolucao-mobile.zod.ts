@@ -16,8 +16,8 @@ export const addCheckListDevolucaoMobileParams = zod.object({
 })
 
 export const addCheckListDevolucaoMobileBody = zod.object({
-  "fotoBauAberto": zod.string().describe('Foto do baú aberto'),
-  "fotoBauFechado": zod.string().describe('Foto do baú fechado'),
+  "fotoBauAberto": zod.instanceof(File).describe('Foto do baú fechado'),
+  "fotoBauFechado": zod.instanceof(File).describe('Foto do baú fechado'),
   "demandaId": zod.string(),
   "temperaturaBau": zod.string().describe('Temperatura do Baú'),
   "temperaturaProduto": zod.string().describe('Temperatura do Produto'),
@@ -141,16 +141,16 @@ export const getStatusByIdResponse = zod.string()
  * @summary Adicionar anomalia de devolução
  */
 export const addAnomaliaDevolucaoBody = zod.object({
-  "demandaId": zod.number(),
-  "sku": zod.string(),
-  "descricao": zod.string(),
-  "lote": zod.string(),
-  "tipo": zod.string(),
-  "natureza": zod.string(),
-  "causa": zod.string(),
-  "tratado": zod.boolean().optional(),
-  "quantidadeCaixas": zod.number(),
-  "quantidadeUnidades": zod.number(),
-  "imagens": zod.array(zod.string())
+  "demandaId": zod.number().describe('ID da demanda de devolução'),
+  "sku": zod.string().describe('Código SKU do produto'),
+  "descricao": zod.string().describe('Descrição da anomalia'),
+  "lote": zod.string().describe('Lote do produto'),
+  "tipo": zod.string().describe('Tipo da anomalia'),
+  "natureza": zod.string().describe('Natureza da anomalia'),
+  "causa": zod.string().describe('Causa da anomalia'),
+  "tratado": zod.boolean().optional().describe('Indica se a anomalia já foi tratada'),
+  "quantidadeCaixas": zod.number().describe('Quantidade de caixas afetadas'),
+  "quantidadeUnidades": zod.number().describe('Quantidade de unidades afetadas'),
+  "imagens": zod.array(zod.string()).describe('Lista de URLs ou identificadores das imagens')
 })
 

@@ -228,6 +228,7 @@ export * from './listarDemandasDtoStatus';
 export * from './listarDemandasDtoTelefone';
 export * from './listarDemandasDtoViagemId';
 export * from './listarUsuariosParams';
+export * from './multipleFilesDto';
 export * from './overViewProdutividadeDataDto';
 export * from './paleteCreateDataDto';
 export * from './paleteCreateDataDtoDemandaId';

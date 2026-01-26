@@ -7,15 +7,26 @@
  */
 
 export interface AnomaliaDevolucaoDto {
+  /** ID da demanda de devolução */
   demandaId: number;
+  /** Código SKU do produto */
   sku: string;
+  /** Descrição da anomalia */
   descricao: string;
+  /** Lote do produto */
   lote: string;
+  /** Tipo da anomalia */
   tipo: string;
+  /** Natureza da anomalia */
   natureza: string;
+  /** Causa da anomalia */
   causa: string;
+  /** Indica se a anomalia já foi tratada */
   tratado?: boolean;
+  /** Quantidade de caixas afetadas */
   quantidadeCaixas: number;
+  /** Quantidade de unidades afetadas */
   quantidadeUnidades: number;
+  /** Lista de URLs ou identificadores das imagens */
   imagens: string[];
 }
