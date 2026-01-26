@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { db, type ChecklistRecord, type ConferenceRecord, type AnomalyRecord, type DemandRecord } from '@/_shared/db/database';
 import { useProdutoStore } from '@/_shared/stores/produtoStore';
 import { useChecklistStore } from '@/_shared/stores/checklistStore';
@@ -119,6 +119,65 @@ export function useDebugData() {
   }, []);
 
   /**
+   * Calculate total size of images (base64 strings)
+   * Base64 strings are stored as text, so we use the string length in bytes
+   */
+  const imagesTotalSize = useMemo(() => {
+    let totalBytes = 0;
+    let checklistCount = 0;
+    let anomalyPhotoCount = 0;
+
+    // Calculate size from checklists (fotoBauAberto and fotoBauFechado)
+    checklists.forEach((checklist) => {
+      if (checklist.fotoBauAberto && typeof checklist.fotoBauAberto === 'string') {
+        const size = checklist.fotoBauAberto.length;
+        totalBytes += size;
+        checklistCount++;
+      }
+      if (checklist.fotoBauFechado && typeof checklist.fotoBauFechado === 'string') {
+        const size = checklist.fotoBauFechado.length;
+        totalBytes += size;
+        checklistCount++;
+      }
+    });
+
+    // Calculate size from anomalies (photos array)
+    anomalies.forEach((anomaly) => {
+      if (anomaly.photos && Array.isArray(anomaly.photos)) {
+        anomaly.photos.forEach((photo) => {
+          if (photo && typeof photo === 'string') {
+            const size = photo.length;
+            totalBytes += size;
+            anomalyPhotoCount++;
+          }
+        });
+      }
+    });
+
+    // Debug log
+    console.log('[DebugPage] Images size calculation:', {
+      totalBytes,
+      checklistImages: checklistCount,
+      anomalyPhotos: anomalyPhotoCount,
+      checklistsCount: checklists.length,
+      anomaliesCount: anomalies.length,
+    });
+
+    return totalBytes;
+  }, [checklists, anomalies]);
+
+  /**
+   * Format bytes to human readable format
+   */
+  const imagesTotalSizeFormatted = useMemo(() => {
+    if (imagesTotalSize === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(imagesTotalSize) / Math.log(k));
+    return Math.round((imagesTotalSize / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+  }, [imagesTotalSize]);
+
+  /**
    * Export database as JSON
    */
   const exportDatabase = useCallback(async () => {
@@ -149,6 +208,8 @@ export function useDebugData() {
     demands,
     produtos,
     isOnline,
+    imagesTotalSize,
+    imagesTotalSizeFormatted,
     deleteChecklist,
     deleteConference,
     deleteAnomaly,

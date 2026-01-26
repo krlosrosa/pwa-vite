@@ -20,6 +20,8 @@ export default function DebugPage() {
     demands,
     produtos,
     isOnline,
+    imagesTotalSize,
+    imagesTotalSizeFormatted,
     deleteChecklist,
     deleteConference,
     deleteAnomaly,
@@ -37,6 +39,28 @@ export default function DebugPage() {
       />
 
       <div className="p-2 sm:p-4 space-y-3 sm:space-y-4">
+        {/* Images Size Info Card */}
+        <Card className="border-blue-500/50 bg-blue-500/5">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">Tamanho Total das Imagens</h3>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Tamanho total de todas as imagens armazenadas (checklists e anomalias)
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-lg font-bold text-blue-600">
+                  {imagesTotalSizeFormatted || '0 Bytes'}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  ({imagesTotalSize?.toLocaleString() || '0'} bytes)
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <DangerZone
           isOnline={isOnline}
           onClearAll={clearAllData}
