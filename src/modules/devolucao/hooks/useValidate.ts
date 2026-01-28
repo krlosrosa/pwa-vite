@@ -2,8 +2,7 @@ import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from '@tanstack/react-router';
 import { useDemandStore } from '@/_shared/stores/demandStore';
 import { useChecklistStore } from '@/_shared/stores/checklistStore';
-import { useStartDemandaDevolucaoMobile } from '@/_services/api/service/devolucao-mobile/devolucao-mobile';
-
+import { useStartDemandaDevolucaoMobile } from '@/_services/api/service/devolucao/devolucao';
 /**
  * Hook for managing demand validation page logic
  * Handles dock and vehicle information, password validation, and navigation
@@ -88,10 +87,8 @@ export function useValidate() {
       }
 
       await startDemanda({
-        data: {
-          demandaId: demandaIdNumber,
-          doca: dock,
-        }
+        demandaId: demandaIdNumber.toString(),
+        doca: dock,
       }).then(() => {
         console.log('Demand started successfully:', demandaId);
       }).catch((error) => {

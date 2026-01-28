@@ -1,4 +1,5 @@
-import { useAddAnomaliaDevolucao } from '@/_services/api/service/devolucao-mobile/devolucao-mobile';
+import { useAddAnomaliaDevolucao, useGetPresignedUrlAnomaliaDevolucao } from '@/_services/api/service/devolucao/devolucao';
+import { uploadImageMinio } from '@/_services/http/minio.http';
 import { useConferenceStore } from '@/_shared/stores';
 
 /**
@@ -29,6 +30,7 @@ function base64ToFile(base64: string, filename: string = 'image.jpg', mimeType: 
  */
 export function useSyncAnomalia() {
   const { mutateAsync } = useAddAnomaliaDevolucao();
+  const { mutateAsync: getPresignedUrlAnomaliaDevolucao } = useGetPresignedUrlAnomaliaDevolucao();
   const { getAllAnomalies, markAnomalyAsSynced } = useConferenceStore();
 
   async function syncAnomalias() {
@@ -48,7 +50,7 @@ export function useSyncAnomalia() {
         if (anomaly.photos && Array.isArray(anomaly.photos)) {
           anomaly.photos.forEach((photo, index) => {
             if (photo && typeof photo === 'string') {
-              const filename = `anomalia-${anomaly.id}-${index + 1}.jpg`;
+              const filename = `anomalia-${anomaly.demandaId}-${anomaly.sku}-${index + 1}.jpg`;
               imageFiles.push(base64ToFile(photo, filename));
             }
           });
@@ -59,6 +61,18 @@ export function useSyncAnomalia() {
           console.warn(`[useSyncAnomalia] Skipping anomaly ${anomaly.id} - no photos found`);
           continue;
         }
+
+        const urlsPresigned = await Promise.all(imageFiles.map(async (file) => {
+          return await getPresignedUrlAnomaliaDevolucao({
+            filename: file.name,
+          });
+        }));
+
+        await Promise.all(urlsPresigned.map(async (url) => {
+          await uploadImageMinio(url, imageFiles[urlsPresigned.indexOf(url)]);
+        }));
+
+        const filenames = imageFiles.map((targetFile) => targetFile.name);
 
         await mutateAsync({
           data: {
@@ -71,7 +85,7 @@ export function useSyncAnomalia() {
             natureza: natureza,
             tipo: tipo,
             // Type assertion: API expects File[] for multipart/form-data, but type definition says string[]
-            imagens: imageFiles as unknown as string[],
+            imagens: filenames,
             demandaId: Number(anomaly.demandaId),
             tratado: false
           },

@@ -6,14 +6,12 @@
  * OpenAPI spec version: 1.0
  */
 
-export interface AddCheckListDto {
-  fotoBauAberto: string;
-  fotoBauFechado: string;
-  /** @minLength 1 */
-  demandaId: string;
-  /** @pattern ^-?\d+(\.\d+)?$ */
-  temperaturaBau: string;
-  /** @pattern ^-?\d+(\.\d+)?$ */
-  temperaturaProduto: string;
-  anomalias?: string;
-}
+export type InfoMeDtoEmpresa = typeof InfoMeDtoEmpresa[keyof typeof InfoMeDtoEmpresa];
+
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const InfoMeDtoEmpresa = {
+  LDB: 'LDB',
+  ITB: 'ITB',
+  DPA: 'DPA',
+} as const;

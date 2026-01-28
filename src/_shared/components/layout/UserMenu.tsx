@@ -58,7 +58,7 @@ export function UserMenu() {
     try {
       // Sync all data: conferences, checklists, and demands
       await syncProdutos(); 
-      await   syncAnomalias();
+      await syncAnomalias();
       await syncConferences();
       await syncCheckLists();
       await syncDemands();

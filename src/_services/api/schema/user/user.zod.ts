@@ -5,15 +5,16 @@
  * Documentação da API responsável por: gestão de produtividade, montagem e impressão de mapas de separação, sistema de devolução de estoque e contagem de inventário.
  * OpenAPI spec version: 1.0
  */
+import * as zod from 'zod';
 
-export interface AddCheckListDto {
-  fotoBauAberto: string;
-  fotoBauFechado: string;
-  /** @minLength 1 */
-  demandaId: string;
-  /** @pattern ^-?\d+(\.\d+)?$ */
-  temperaturaBau: string;
-  /** @pattern ^-?\d+(\.\d+)?$ */
-  temperaturaProduto: string;
-  anomalias?: string;
-}
+
+/**
+ * @summary Get info me
+ */
+export const infoMeResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "empresa": zod.enum(['LDB', 'ITB', 'DPA']),
+  "roles": zod.array(zod.string())
+})
+

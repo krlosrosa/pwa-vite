@@ -5,9 +5,6 @@ export default defineConfig({
   unnoqApi: {
     input: {
       target: 'http://localhost:4000/docs-json',
-      filters: {
-        tags: ['devolucao-mobile','produto'],
-      },
     },
     output: {
       headers: true,
@@ -29,9 +26,6 @@ export default defineConfig({
   unnoqApiZod: {
     input: {
       target: 'http://localhost:4000/docs-json',
-      filters: {
-        tags: ['devolucao-mobile','produto'],
-      },
     },
     output: {
       client: 'zod',

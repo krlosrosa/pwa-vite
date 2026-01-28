@@ -1,4 +1,5 @@
-import { useAddCheckListDevolucaoMobile } from '@/_services/api/service/devolucao-mobile/devolucao-mobile';
+import { useAddCheckListDevolucaoMobile, useGetPresignedUrlCheckListDevolucao } from '@/_services/api/service/devolucao/devolucao';
+import { uploadImageMinio } from '@/_services/http/minio.http';
 import { useChecklistStore } from '@/_shared/stores';
 
 /**
@@ -30,6 +31,7 @@ function base64ToFile(base64: string, filename: string = 'image.jpg', mimeType: 
 export function useSyncCheckList() {
   const { mutateAsync } = useAddCheckListDevolucaoMobile();
   const { getAllChecklists, markAsSynced } = useChecklistStore();
+  const { mutateAsync: getPresignedUrlCheckListDevolucao } = useGetPresignedUrlCheckListDevolucao();
 
   async function syncCheckLists() {
     const unsyncedChecklists = (await getAllChecklists()).filter(d => d.synced === false);
@@ -42,24 +44,38 @@ export function useSyncCheckList() {
           continue;
         }
 
+        const filenameBauAberto = `bau-aberto-${checklist.demandaId}.jpg`;
+        const filenameBauFechado = `bau-fechado-${checklist.demandaId}.jpg`;
+
+        const bauAbertoPresignedUrl = await getPresignedUrlCheckListDevolucao({
+          filename: filenameBauAberto,
+        });
+
+        const bauFechadoPresignedUrl = await getPresignedUrlCheckListDevolucao({
+          filename: filenameBauFechado,
+        });
+
         // Convert base64 strings to File for multipart/form-data
         const fotoBauAbertoFile = checklist.fotoBauAberto 
-          ? base64ToFile(checklist.fotoBauAberto, `bau-aberto-${checklist.demandaId}.jpg`)
-          : new File([], `bau-aberto-${checklist.demandaId}.jpg`, { type: 'image/jpeg' });
+          ? base64ToFile(checklist.fotoBauAberto, filenameBauAberto)
+          : new File([], filenameBauAberto, { type: 'image/jpeg' });
         
         const fotoBauFechadoFile = checklist.fotoBauFechado 
-          ? base64ToFile(checklist.fotoBauFechado, `bau-fechado-${checklist.demandaId}.jpg`)
-          : new File([], `bau-fechado-${checklist.demandaId}.jpg`, { type: 'image/jpeg' });
+          ? base64ToFile(checklist.fotoBauFechado, filenameBauFechado)
+          : new File([], filenameBauFechado, { type: 'image/jpeg' });
+
+        await uploadImageMinio(bauAbertoPresignedUrl, fotoBauAbertoFile);
+        await uploadImageMinio(bauFechadoPresignedUrl, fotoBauFechadoFile);
 
         await mutateAsync({
           demandaId: checklist.demandaId,
           data: {
-            fotoBauAberto: fotoBauAbertoFile,
-            fotoBauFechado: fotoBauFechadoFile,
             demandaId: checklist.demandaId,
             temperaturaBau: checklist.temperaturaBau || '',
             temperaturaProduto: checklist.temperaturaProduto || '',
             anomalias: checklist.anomalias || undefined,
+            fotoBauAberto: filenameBauAberto,
+            fotoBauFechado: filenameBauFechado,
           }
         });
 

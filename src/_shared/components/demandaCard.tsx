@@ -1,12 +1,12 @@
 import { ChevronRight, Clock, Truck, FileText } from 'lucide-react';
-import type { ListarDemandasDto } from '@/_services/api/model';
+import type { DemandDto, ListarDemandasDto } from '@/_services/api/model';
 import { Card, CardContent } from './ui/card';
 import { cn } from '../lib/utils';
 import { Badge } from './ui/badge';
 
 
 interface DemandCardProps {
-  demand: ListarDemandasDto;
+  demand: DemandDto;
   hasDraft?: boolean;
   demandStoreData?: {
     finalizeIntention?: boolean;

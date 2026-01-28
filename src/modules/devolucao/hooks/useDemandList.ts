@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { ListarDemandasDto } from '@/_services/api/model';
-import { useListarDemandasEmAbertoDevolucaoMobile } from '@/_services/api/service/devolucao-mobile/devolucao-mobile';
+import type { DemandDto } from '@/_services/api/model';
 import { useDemandWorkflow } from '@/hooks/logic/use-demand-workflow';
 import { useChecklistStore } from '@/_shared/stores/checklistStore';
 import { useDemandStore } from '@/_shared/stores/demandStore';
 import { useIdentityStore } from '@/_shared/stores/identityStore';
 import { useSyncAnomalia } from '@/hooks/logic/use-sync-anomalia';
+import { useListarDemandasEmAbertoDevolucaoMobile } from '@/_services/api/service/devolucao/devolucao';
 
 /**
  * Interface for demand list metadata
@@ -20,7 +20,7 @@ export interface DemandMetadata {
  */
 export interface UseDemandListReturn {
   /** List of demands from API */
-  demands: ListarDemandasDto[] | undefined;
+  demands: DemandDto[] | undefined;
   /** Loading state from API */
   isLoading: boolean;
   /** Error state from API */

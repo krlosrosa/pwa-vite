@@ -1,6 +1,6 @@
 
 import type { AddConferenciaCegaDto } from '@/_services/api/model';
-import { useAddContagemCega, useFinalizarDemandaDevolucaoMobile } from '@/_services/api/service/devolucao-mobile/devolucao-mobile';
+import { useAddContagemCega, useFinalizarDemandaDevolucaoMobile } from '@/_services/api/service/devolucao/devolucao';
 import { useDemandStore } from '@/_shared/stores';
 /**
  * Hook for syncing a full demand with backend using Orval mutation

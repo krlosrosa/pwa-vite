@@ -5,15 +5,16 @@
  * Documentação da API responsável por: gestão de produtividade, montagem e impressão de mapas de separação, sistema de devolução de estoque e contagem de inventário.
  * OpenAPI spec version: 1.0
  */
+import type { ResponseRavexDtoNotasItem } from './responseRavexDtoNotasItem';
 
-export interface AddCheckListDto {
-  fotoBauAberto: string;
-  fotoBauFechado: string;
-  /** @minLength 1 */
-  demandaId: string;
-  /** @pattern ^-?\d+(\.\d+)?$ */
-  temperaturaBau: string;
-  /** @pattern ^-?\d+(\.\d+)?$ */
-  temperaturaProduto: string;
-  anomalias?: string;
+export interface ResponseRavexDto {
+  idViagem: string;
+  /**
+   * @minLength 7
+   * @maxLength 7
+   */
+  placa: string;
+  motorista: string;
+  transportadora: string;
+  notas: ResponseRavexDtoNotasItem[];
 }

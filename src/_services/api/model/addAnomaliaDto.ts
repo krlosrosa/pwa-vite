@@ -6,14 +6,16 @@
  * OpenAPI spec version: 1.0
  */
 
-export interface AddCheckListDto {
-  fotoBauAberto: string;
-  fotoBauFechado: string;
-  /** @minLength 1 */
-  demandaId: string;
-  /** @pattern ^-?\d+(\.\d+)?$ */
-  temperaturaBau: string;
-  /** @pattern ^-?\d+(\.\d+)?$ */
-  temperaturaProduto: string;
-  anomalias?: string;
+export interface AddAnomaliaDto {
+  demandaId: number;
+  sku: string;
+  descricao: string;
+  lote: string;
+  tipo: string;
+  natureza: string;
+  causa: string;
+  tratado?: boolean;
+  quantidadeCaixas: number;
+  quantidadeUnidades: number;
+  imagens: string[];
 }

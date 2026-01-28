@@ -5,15 +5,8 @@
  * Documentação da API responsável por: gestão de produtividade, montagem e impressão de mapas de separação, sistema de devolução de estoque e contagem de inventário.
  * OpenAPI spec version: 1.0
  */
+import type { AddCheckListResponseDtoUploadUrls } from './addCheckListResponseDtoUploadUrls';
 
-export interface AddCheckListDto {
-  fotoBauAberto: string;
-  fotoBauFechado: string;
-  /** @minLength 1 */
-  demandaId: string;
-  /** @pattern ^-?\d+(\.\d+)?$ */
-  temperaturaBau: string;
-  /** @pattern ^-?\d+(\.\d+)?$ */
-  temperaturaProduto: string;
-  anomalias?: string;
+export interface AddCheckListResponseDto {
+  uploadUrls: AddCheckListResponseDtoUploadUrls;
 }

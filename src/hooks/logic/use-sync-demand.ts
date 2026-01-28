@@ -1,5 +1,5 @@
 
-import { useFinalizarDemandaDevolucaoMobile } from '@/_services/api/service/devolucao-mobile/devolucao-mobile';
+import { useFinalizarDemandaDevolucaoMobile } from '@/_services/api/service/devolucao/devolucao';
 import { useDemandStore } from '@/_shared/stores/demandStore';
 /**
  * Hook for syncing a full demand with backend using Orval mutation

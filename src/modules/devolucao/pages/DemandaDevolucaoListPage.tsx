@@ -1,4 +1,4 @@
-import type { ListarDemandasDto } from '@/_services/api/model';
+import type { DemandDto, ListarDemandasDto } from '@/_services/api/model';
 import { DemandCard } from '@/_shared/components/demandaCard';
 import { PageContainer } from '@/_shared/components/layout/PageContainer';
 import { PageHeader } from '@/_shared/components/layout/PageHeader';
@@ -48,7 +48,7 @@ export default function DemandListPage() {
         {demands?.length === 0 ? (
           <DemandListEmptyState onRefresh={refreshList} />
         ) : (
-          demands?.map((demand: ListarDemandasDto) => (
+          demands?.map((demand: DemandDto) => (
             <DemandCard
               key={demand.id}
               demand={demand}

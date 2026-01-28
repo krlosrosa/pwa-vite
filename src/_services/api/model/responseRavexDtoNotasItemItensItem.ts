@@ -6,14 +6,15 @@
  * OpenAPI spec version: 1.0
  */
 
-export interface AddCheckListDto {
-  fotoBauAberto: string;
-  fotoBauFechado: string;
-  /** @minLength 1 */
-  demandaId: string;
-  /** @pattern ^-?\d+(\.\d+)?$ */
-  temperaturaBau: string;
-  /** @pattern ^-?\d+(\.\d+)?$ */
-  temperaturaProduto: string;
-  anomalias?: string;
-}
+export type ResponseRavexDtoNotasItemItensItem = {
+  sku: string;
+  /** @pattern ^(?!produto não encontrado$).*$ */
+  descricao: string;
+  pesoLiquido: number;
+  quantidadeRavex: number;
+  quantidadeCaixas: number;
+  quantidadeUnidades: number;
+  fatorConversao: number;
+  unPorCaixa: number;
+  decimal: number;
+};
