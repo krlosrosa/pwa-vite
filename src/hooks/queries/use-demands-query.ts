@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { useListarDemandasEmAbertoDevolucaoMobile } from '@/_services/api/service/devolucao-mobile/devolucao-mobile';
-import type { ListarDemandasDto } from '@/_services/api/model';
-import { ListarDemandasDtoStatus } from '@/_services/api/model';
+import type { DemandDto } from '@/_services/api/model';
+import { DemandDtoStatus } from '@/_services/api/model';
+import { useListarDemandasEmAbertoDevolucaoMobile } from '@/_services/api/service/devolucao/devolucao';
 
 /**
  * Business hook for fetching demands list with offline-first support
@@ -38,15 +38,15 @@ export function useDemandsQuery(centerId: string) {
   const demands = useMemo(() => {
     if (!rawDemands) return [];
 
-    const priorityDemands: ListarDemandasDto[] = [];
-    const otherDemands: ListarDemandasDto[] = [];
+    const priorityDemands: DemandDto[] = [];
+    const otherDemands: DemandDto[] = [];
 
     rawDemands.forEach((demand) => {
       const status = demand.status;
       if (
-        status === ListarDemandasDtoStatus.AGUARDANDO_LIBERACAO ||
-        status === ListarDemandasDtoStatus.AGUARDANDO_CONFERENCIA ||
-        status === ListarDemandasDtoStatus.EM_CONFERENCIA
+        status === DemandDtoStatus.AGUARDANDO_LIBERACAO ||
+        status === DemandDtoStatus.AGUARDANDO_CONFERENCIA ||
+        status === DemandDtoStatus.EM_CONFERENCIA
       ) {
         priorityDemands.push(demand);
       } else {

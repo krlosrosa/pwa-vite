@@ -2,9 +2,9 @@ import { useEffect, useCallback, useRef, useState } from 'react';
 import { useChecklistStore } from '@/_shared/stores/checklistStore';
 import { useConferenceStore } from '@/_shared/stores/conferenceStore';
 import { useDemandStore } from '@/_shared/stores/demandStore';
-import { useAddCheckListDevolucaoMobile, useAddContagemCega } from '@/_services/api/service/devolucao-mobile/devolucao-mobile';
 import { prepareDemandSyncPayload } from './use-sync-demand-helpers';
 import type { ChecklistRecord } from '@/_shared/db/database';
+import { useAddCheckListDevolucaoMobile, useAddContagemCega } from '@/_services/api/service/devolucao/devolucao';
 
 interface SyncStatus {
   lastSyncTime: number | null;

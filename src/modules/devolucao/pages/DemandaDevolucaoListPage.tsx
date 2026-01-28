@@ -1,4 +1,4 @@
-import type { DemandDto, ListarDemandasDto } from '@/_services/api/model';
+import type { DemandDto } from '@/_services/api/model';
 import { DemandCard } from '@/_shared/components/demandaCard';
 import { PageContainer } from '@/_shared/components/layout/PageContainer';
 import { PageHeader } from '@/_shared/components/layout/PageHeader';
