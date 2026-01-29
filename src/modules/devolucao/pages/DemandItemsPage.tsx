@@ -1,4 +1,4 @@
-import { CheckCircle, Package, RefreshCw, WifiOff, Plus } from 'lucide-react';
+import { CheckCircle, Package, RefreshCw, WifiOff, Plus, AlertTriangle } from 'lucide-react';
 import { useParams } from '@tanstack/react-router';
 import { PageContainer } from '@/_shared/components/layout/PageContainer';
 import { PageHeader } from '@/_shared/components/layout/PageHeader';
@@ -24,6 +24,7 @@ export default function DemandItemsPage() {
     hasLocalData,
     isSyncing,
     toggleFilter,
+    toggleAnomaliesFilter,
     setSearchFilter,
     navigateToConference,
     navigateToAddExtra,
@@ -62,15 +63,32 @@ export default function DemandItemsPage() {
             onChange={setSearchFilter}
           />
 
-          <div className="flex items-center justify-between">
-            <Label htmlFor="show-checked" className="text-sm text-muted-foreground">
-              Mostrar apenas conferidos
-            </Label>
-            <Switch
-              id="show-checked"
-              checked={filters.showOnlyChecked}
-              onCheckedChange={toggleFilter}
-            />
+          <div className="space-y-3 p-3 bg-muted/30 rounded-lg border border-border">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="show-checked" className="text-sm font-medium text-foreground flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-primary" />
+                Mostrar apenas conferidos
+              </Label>
+              <Switch
+                id="show-checked"
+                checked={filters.showOnlyChecked}
+                onCheckedChange={toggleFilter}
+              />
+            </div>
+            
+            <div className="h-px bg-border" />
+            
+            <div className="flex items-center justify-between">
+              <Label htmlFor="show-anomalies" className="text-sm font-medium text-foreground flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-orange-500" />
+                Mostrar apenas com anomalias
+              </Label>
+              <Switch
+                id="show-anomalies"
+                checked={filters.showOnlyAnomalies}
+                onCheckedChange={toggleAnomaliesFilter}
+              />
+            </div>
           </div>
 
           {isLoadingApi && !hasLocalData && !isApiError ? (
@@ -92,9 +110,21 @@ export default function DemandItemsPage() {
               />
             ) : (
               <EmptyState
-                icon={<Package className="h-8 w-8" />}
-                title={filters.searchTerm ? 'Nenhum item encontrado' : 'Nenhum item'}
-                description={filters.searchTerm ? 'Tente buscar por outro termo.' : 'Não há itens nesta demanda.'}
+                icon={filters.showOnlyAnomalies ? <AlertTriangle className="h-8 w-8" /> : <Package className="h-8 w-8" />}
+                title={
+                  filters.searchTerm 
+                    ? 'Nenhum item encontrado' 
+                    : filters.showOnlyAnomalies 
+                    ? 'Nenhum item com anomalias' 
+                    : 'Nenhum item'
+                }
+                description={
+                  filters.searchTerm 
+                    ? 'Tente buscar por outro termo.' 
+                    : filters.showOnlyAnomalies
+                    ? 'Não há itens com anomalias registradas nesta demanda.'
+                    : 'Não há itens nesta demanda.'
+                }
               />
             )
           ) : (

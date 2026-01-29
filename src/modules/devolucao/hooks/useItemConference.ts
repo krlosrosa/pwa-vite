@@ -96,10 +96,16 @@ export function useItemConference() {
 
   /**
    * Validate product code if not extra item
+   * If item is already checked, validation is not required
    */
   const isValidProductCode = useMemo(() => {
     // Extra items don't need validation
     if (isExtraItem) return true;
+    
+    // If item is already checked, validation is not required
+    if (conference?.isChecked) {
+      return true;
+    }
     
     if (!conference || !productValidationCode.trim()) {
       return false;
@@ -121,6 +127,7 @@ export function useItemConference() {
       validatedSku: `"${validatedSku}"`,
       isValid,
       isExtraItem,
+      isAlreadyChecked: conference?.isChecked,
     });
 
     return isValid;

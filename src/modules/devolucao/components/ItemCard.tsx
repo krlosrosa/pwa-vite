@@ -29,24 +29,36 @@ export function ItemCard({
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="font-semibold text-foreground">{item.sku}</span>
-              {item.isExtra && (
-                <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-300">
-                  Item Extra
-                </Badge>
-              )}
-              {item.isChecked && (
-                <Badge variant="default" className="text-xs">
-                  Conferido
-                </Badge>
-              )}
-              {item.hasDivergence && (
-                <Badge variant="destructive" className="text-xs flex items-center gap-1">
-                  <AlertTriangle className="h-3 w-3" />
-                  Divergência
-                </Badge>
-              )}
+            <div className="mb-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-semibold text-foreground shrink-0">{item.sku}</span>
+              </div>
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent">
+                <div className="flex items-center gap-2 shrink-0">
+                  {item.isExtra && (
+                    <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-300 whitespace-nowrap">
+                      Item Extra
+                    </Badge>
+                  )}
+                  {item.isChecked && (
+                    <Badge variant="default" className="text-xs whitespace-nowrap">
+                      Conferido
+                    </Badge>
+                  )}
+                  {item.hasDivergence && (
+                    <Badge variant="destructive" className="text-xs flex items-center gap-1 whitespace-nowrap">
+                      <AlertTriangle className="h-3 w-3" />
+                      Divergência
+                    </Badge>
+                  )}
+                  {item.hasAnomaly && (
+                    <Badge variant="destructive" className="text-xs flex items-center gap-1 whitespace-nowrap bg-orange-500 hover:bg-orange-600">
+                      <AlertTriangle className="h-3 w-3" />
+                      Anomalia
+                    </Badge>
+                  )}
+                </div>
+              </div>
             </div>
             <p className="text-sm text-muted-foreground line-clamp-2">
               {item.description}

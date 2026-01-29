@@ -45,8 +45,8 @@ export function ConferenceForm({
           Conferência
         </CardTitle>
         <div className="space-y-4">
-          {/* Validação do Produto (apenas para produtos não extras) */}
-          {!isExtraItem && (
+          {/* Validação do Produto (apenas para produtos não extras e não conferidos) */}
+          {!isExtraItem && !conference.isChecked && (
             <div className="space-y-2">
               <Label htmlFor="productValidationCode">
                 Validar Produto <span className="text-destructive">*</span>
@@ -85,6 +85,16 @@ export function ConferenceForm({
                   Produto validado com sucesso
                 </p>
               )}
+            </div>
+          )}
+          
+          {/* Mensagem quando item já foi conferido */}
+          {!isExtraItem && conference.isChecked && (
+            <div className="space-y-2 p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-md">
+              <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
+                <Check className="h-4 w-4" />
+                <span className="text-sm font-medium">Item já conferido - Validação do produto não necessária</span>
+              </div>
             </div>
           )}
           {/* Quantidade de Caixas */}

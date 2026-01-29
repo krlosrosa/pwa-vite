@@ -20,6 +20,7 @@ export interface ItemData {
   lote?: string; // lote
   isChecked: boolean;
   hasDivergence: boolean;
+  hasAnomaly?: boolean; // Indica se o item tem anomalias registradas
   isExtra?: boolean; // Indica se é um item extra
 }
 
@@ -39,6 +40,7 @@ export interface ConferenceStats {
 export interface FilterState {
   searchTerm: string;
   showOnlyChecked: boolean;
+  showOnlyAnomalies: boolean;
 }
 
 /**
@@ -63,6 +65,8 @@ export interface UseDemandItemsReturn {
   isSyncing: boolean;
   /** Toggle filter for showing only checked items */
   toggleFilter: (showOnlyChecked: boolean) => void;
+  /** Toggle filter for showing only items with anomalies */
+  toggleAnomaliesFilter: (showOnlyAnomalies: boolean) => void;
   /** Update search filter */
   setSearchFilter: (searchTerm: string) => void;
   /** Navigate to item conference page */
@@ -111,7 +115,9 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
   const navigate = useNavigate();
   const [filter, setFilter] = useState('');
   const [showOnlyChecked, setShowOnlyChecked] = useState(false);
+  const [showOnlyAnomalies, setShowOnlyAnomalies] = useState(false);
   const [conferences, setConferences] = useState<ConferenceRecord[]>([]);
+  const [anomalies, setAnomalies] = useState<Map<string, boolean>>(new Map()); // Map<itemId, hasAnomaly>
   const [stats, setStats] = useState<ConferenceStats>({ 
     total: 0, 
     checked: 0, 
@@ -143,11 +149,12 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
     loadConferencesByDemand, 
     getConferenceStats,
     getUnsyncedConferences,
-    markConferenceAsSynced
+    markConferenceAsSynced,
+    loadAnomaliesByDemand
   } = useConferenceStore();
 
   /**
-   * Reactive function to load conferences and stats
+   * Reactive function to load conferences, anomalies and stats
    */
   const refreshConferences = useCallback(async () => {
     if (!demandaId) return;
@@ -155,13 +162,42 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
     const storedConferences = await loadConferencesByDemand(demandaId);
     setConferences(storedConferences);
     
+    // Load anomalies for this demand
+    const demandAnomalies = await loadAnomaliesByDemand(demandaId);
+    const anomaliesMap = new Map<string, boolean>();
+    demandAnomalies.forEach(anomaly => {
+      anomaliesMap.set(anomaly.itemId, true);
+    });
+    setAnomalies(anomaliesMap);
+    
     const conferenceStats = await getConferenceStats(demandaId);
     setStats(conferenceStats);
-  }, [demandaId, loadConferencesByDemand, getConferenceStats]);
+  }, [demandaId, loadConferencesByDemand, getConferenceStats, loadAnomaliesByDemand]);
 
   // Load conferences from Dexie store on mount and when demandaId changes
   useEffect(() => {
     refreshConferences();
+  }, [refreshConferences]);
+
+  // Refresh when page gains focus or becomes visible (user returns from conference/anomaly page)
+  useEffect(() => {
+    const handleFocus = () => {
+      refreshConferences();
+    };
+    
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        refreshConferences();
+      }
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [refreshConferences]);
 
   /**
@@ -231,6 +267,8 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
    */
   const items: ItemData[] = useMemo(() => {
     return conferences.map((conference) => {
+      const hasAnomaly = anomalies.get(conference.itemId) ?? false;
+      
       if (!conference.isChecked) {
         return {
           id: conference.itemId,
@@ -243,6 +281,7 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
           lote: conference.lote,
           isChecked: conference.isChecked,
           hasDivergence: false,
+          hasAnomaly,
           isExtra: conference.isExtra ?? false,
         };
       }
@@ -270,10 +309,11 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
         lote: conference.lote,
         isChecked: conference.isChecked,
         hasDivergence: unidadesDivergence || caixasDivergence,
+        hasAnomaly,
         isExtra: conference.isExtra ?? false,
       };
     });
-  }, [conferences]);
+  }, [conferences, anomalies]);
 
   /**
    * Filters applied with useMemo for optimization
@@ -286,6 +326,11 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
       filtered = filtered.filter(item => item.isChecked);
     }
 
+    // Filter by "apenas com anomalias"
+    if (showOnlyAnomalies) {
+      filtered = filtered.filter(item => item.hasAnomaly === true);
+    }
+
     // Filter by search (SKU or description)
     if (filter.trim()) {
       const searchTerm = filter.toLowerCase().trim();
@@ -296,13 +341,20 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
     }
 
     return filtered;
-  }, [items, filter, showOnlyChecked]);
+  }, [items, filter, showOnlyChecked, showOnlyAnomalies]);
 
   /**
    * Toggle filter for showing only checked items
    */
   const toggleFilter = useCallback((checked: boolean) => {
     setShowOnlyChecked(checked);
+  }, []);
+
+  /**
+   * Toggle filter for showing only items with anomalies
+   */
+  const toggleAnomaliesFilter = useCallback((checked: boolean) => {
+    setShowOnlyAnomalies(checked);
   }, []);
 
   /**
@@ -399,12 +451,14 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
     filters: {
       searchTerm: filter,
       showOnlyChecked,
+      showOnlyAnomalies,
     },
     isLoadingApi,
     isApiError,
     hasLocalData,
     isSyncing: syncMutation.isPending,
     toggleFilter,
+    toggleAnomaliesFilter,
     setSearchFilter,
     navigateToConference,
     navigateToAddExtra,
