@@ -106,18 +106,6 @@ export function ConferenceForm({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="checkedQuantity">Quantidade de Unidades</Label>
-              {conference.expectedQuantity > 0 && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={onQuickSetExpected}
-                  className="h-7 text-xs"
-                >
-                  <Zap className="h-3 w-3 mr-1" />
-                  Usar Esperado ({conference.expectedQuantity})
-                </Button>
-              )}
             </div>
             <Input
               id="checkedQuantity"
