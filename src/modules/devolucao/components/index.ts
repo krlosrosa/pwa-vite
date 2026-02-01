@@ -18,6 +18,7 @@ export { RegisterAnomalyButton } from './RegisterAnomalyButton';
 export { PasswordInput } from './PasswordInput';
 export { DockInfoCard } from './DockInfoCard';
 export { VehicleInfoCard } from './VehicleInfoCard';
+export { ValidationInfoCard } from './ValidationInfoCard';
 export { PasswordRequiredCard } from './PasswordRequiredCard';
 export { PasswordStepCard } from './PasswordStepCard';
 export { NaturezaStep } from './NaturezaStep';

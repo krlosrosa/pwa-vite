@@ -5,8 +5,7 @@ import { BottomActionBar } from '@/_shared/components/layout/BottomActionBar';
 import { Button } from '@/_shared/components/ui/button';
 import { useValidate } from '../hooks/useValidate';
 import {
-  DockInfoCard,
-  VehicleInfoCard,
+  ValidationInfoCard,
   PasswordRequiredCard,
   PasswordStepCard,
 } from '../components';
@@ -18,12 +17,16 @@ export default function ValidatePage() {
     password,
     dock,
     licensePlate,
+    paletesRecebidos,
+    quantidadePaletesEsperada,
+    isCargaSegregada,
     needsPassword,
     canSubmit,
     isStarting,
     setPassword,
     setDock,
     setLicensePlate,
+    setPaletesRecebidos,
     handleContinue,
     handleBack,
   } = useValidate();
@@ -39,11 +42,15 @@ export default function ValidatePage() {
       <div className="p-4 space-y-4">
         {!showPasswordStep ? (
           <>
-            <DockInfoCard dock={dock} onDockChange={setDock} />
-
-            <VehicleInfoCard
+            <ValidationInfoCard
+              dock={dock}
               licensePlate={licensePlate}
+              paletesRecebidos={paletesRecebidos}
+              quantidadePaletesEsperada={quantidadePaletesEsperada}
+              isCargaSegregada={isCargaSegregada}
+              onDockChange={setDock}
               onLicensePlateChange={setLicensePlate}
+              onPaletesRecebidosChange={setPaletesRecebidos}
             />
 
             {needsPassword && <PasswordRequiredCard />}

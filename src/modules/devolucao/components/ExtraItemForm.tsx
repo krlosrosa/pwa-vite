@@ -74,6 +74,21 @@ export function ExtraItemForm({
             )}
           </div>
 
+          {/* Quantidade de Caixas */}
+          <div className="space-y-2">
+            <Label htmlFor="extra-box-quantity">Quantidade de Caixas</Label>
+            <Input
+              id="extra-box-quantity"
+              type="number"
+              inputMode="numeric"
+              min={0}
+              value={boxQuantity}
+              onChange={(e) => onBoxQuantityChange(e.target.value)}
+              placeholder="Quantidade de caixas"
+              className="text-lg font-semibold"
+            />
+          </div>
+          
           {/* Quantidade de Unidades */}
           <div className="space-y-2">
             <Label htmlFor="extra-quantity">Quantidade de Unidades</Label>
@@ -89,20 +104,6 @@ export function ExtraItemForm({
             />
           </div>
 
-          {/* Quantidade de Caixas */}
-          <div className="space-y-2">
-            <Label htmlFor="extra-box-quantity">Quantidade de Caixas</Label>
-            <Input
-              id="extra-box-quantity"
-              type="number"
-              inputMode="numeric"
-              min={0}
-              value={boxQuantity}
-              onChange={(e) => onBoxQuantityChange(e.target.value)}
-              placeholder="Quantidade de caixas"
-              className="text-lg font-semibold"
-            />
-          </div>
 
           {/* Lote */}
           <div className="space-y-2">

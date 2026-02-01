@@ -267,7 +267,26 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
    */
   const items: ItemData[] = useMemo(() => {
     return conferences.map((conference) => {
+      const isExtra = conference.isExtra ?? false;
       const hasAnomaly = anomalies.get(conference.itemId) ?? false;
+      
+      // Extra items always show divergence badge
+      if (isExtra) {
+        return {
+          id: conference.itemId,
+          sku: conference.sku,
+          description: conference.description,
+          expectedQuantity: conference.expectedQuantity,
+          checkedQuantity: conference.checkedQuantity,
+          expectedBoxQuantity: conference.expectedBoxQuantity,
+          boxQuantity: conference.boxQuantity,
+          lote: conference.lote,
+          isChecked: conference.isChecked,
+          hasDivergence: true, // Extra items always have divergence
+          hasAnomaly,
+          isExtra,
+        };
+      }
       
       if (!conference.isChecked) {
         return {
@@ -282,7 +301,7 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
           isChecked: conference.isChecked,
           hasDivergence: false,
           hasAnomaly,
-          isExtra: conference.isExtra ?? false,
+          isExtra,
         };
       }
       
@@ -310,7 +329,7 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
         isChecked: conference.isChecked,
         hasDivergence: unidadesDivergence || caixasDivergence,
         hasAnomaly,
-        isExtra: conference.isExtra ?? false,
+        isExtra,
       };
     });
   }, [conferences, anomalies]);

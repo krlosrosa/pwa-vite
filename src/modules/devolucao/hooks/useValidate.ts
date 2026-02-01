@@ -2,7 +2,8 @@ import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from '@tanstack/react-router';
 import { useDemandStore } from '@/_shared/stores/demandStore';
 import { useChecklistStore } from '@/_shared/stores/checklistStore';
-import { useStartDemandaDevolucaoMobile } from '@/_services/api/service/devolucao/devolucao';
+import { useStartDemandaDevolucaoMobile, useListarDemandasEmAbertoDevolucaoMobile } from '@/_services/api/service/devolucao/devolucao';
+import { useIdentityStore } from '@/_shared/stores/identityStore';
 /**
  * Hook for managing demand validation page logic
  * Handles dock and vehicle information, password validation, and navigation
@@ -15,11 +16,23 @@ export function useValidate() {
   const { loadDemand, saveDemand } = useDemandStore();
   const { loadChecklist } = useChecklistStore();
   const { mutateAsync: startDemanda } = useStartDemandaDevolucaoMobile();
+  const { selectedCenter } = useIdentityStore();
+  const effectiveCenterId = selectedCenter || 'teste_1';
+  
+  // Fetch demand data from API
+  const { data: demands } = useListarDemandasEmAbertoDevolucaoMobile(effectiveCenterId);
+  
+  // Find current demand from API data
+  const currentDemand = useMemo(() => {
+    if (!demands) return null;
+    return demands.find(d => d.id.toString() === demandaId);
+  }, [demands, demandaId]);
 
   const [showPasswordStep, setShowPasswordStep] = useState(false);
   const [password, setPassword] = useState('');
   const [dock, setDock] = useState('');
   const [licensePlate, setLicensePlate] = useState('');
+  const [paletesRecebidos, setPaletesRecebidos] = useState('0');
   const [isStarting, setIsStarting] = useState(false);
 
   // Load existing demand data to pre-fill form
@@ -32,6 +45,9 @@ export function useValidate() {
         }
         if (demandRecord.data.placa) {
           setLicensePlate(demandRecord.data.placa as string);
+        }
+        if (demandRecord.data.paletesRecebidos !== undefined) {
+          setPaletesRecebidos(demandRecord?.data.paletesRecebidos?.toString() ?? '0');
         }
       }
     };
@@ -60,6 +76,20 @@ export function useValidate() {
   }, [showPasswordStep, canProceedPassword, dock, licensePlate]);
 
   /**
+   * Get expected pallets quantity from API
+   */
+  const quantidadePaletesEsperada = useMemo(() => {
+    return currentDemand?.quantidadePaletes ?? null;
+  }, [currentDemand]);
+
+  /**
+   * Get if load is segregated from API
+   */
+  const isCargaSegregada = useMemo(() => {
+    return currentDemand?.cargaSegregada ?? false;
+  }, [currentDemand]);
+
+  /**
    * Handles navigation to password step or form submission
    */
   const handleContinue = useCallback(async () => {
@@ -71,10 +101,11 @@ export function useValidate() {
     setIsStarting(true);
 
     try {
-      // Save dock and license plate to demandStore (upsert - creates if doesn't exist)
+      // Save dock, license plate and pallets received to demandStore (upsert - creates if doesn't exist)
       await saveDemand(demandaId, {
         doca: dock,
         placa: licensePlate,
+        paletesRecebidos: paletesRecebidos ? parseInt(paletesRecebidos, 10) : 0,
       });
 
       console.log('[VALIDATE] Local storage updated. Proceeding to next step for Demand:', demandaId);
@@ -141,6 +172,9 @@ export function useValidate() {
     password,
     dock,
     licensePlate,
+    paletesRecebidos,
+    quantidadePaletesEsperada,
+    isCargaSegregada,
     needsPassword,
     canSubmit,
     canProceedPassword,
@@ -148,6 +182,7 @@ export function useValidate() {
     setPassword,
     setDock,
     setLicensePlate,
+    setPaletesRecebidos,
     handleContinue,
     handleBack,
   };
