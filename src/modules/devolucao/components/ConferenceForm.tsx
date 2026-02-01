@@ -1,8 +1,7 @@
-import { Check, AlertTriangle, Zap } from 'lucide-react';
+import { Check, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardTitle } from '@/_shared/components/ui/card';
 import { Input } from '@/_shared/components/ui/input';
 import { Label } from '@/_shared/components/ui/label';
-import { Button } from '@/_shared/components/ui/button';
 import { cn } from '@/_shared/lib/utils';
 import type { ConferenceRecord } from '@/_shared/db/database';
 
@@ -22,7 +21,6 @@ export function ConferenceForm({
   onCheckedQuantityChange,
   onLoteChange,
   onProductValidationCodeChange,
-  onQuickSetExpected,
 }: {
   conference: ConferenceRecord;
   boxQuantity: string;
