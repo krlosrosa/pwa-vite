@@ -48,7 +48,7 @@ export default function DemandListPage() {
         {demands?.length === 0 ? (
           <DemandListEmptyState onRefresh={refreshList} />
         ) : (
-          demands?.map((demand: DemandDto) => (
+          demands?.sort((a, b) => a.id - b.id).map((demand: DemandDto) => (
             <DemandCard
               key={demand.id}
               demand={demand}

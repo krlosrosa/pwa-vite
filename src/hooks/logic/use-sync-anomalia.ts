@@ -1,33 +1,35 @@
+import imageCompression from 'browser-image-compression';
 import { useAddAnomaliaDevolucao, useGetPresignedUrlAnomaliaDevolucao } from '@/_services/api/service/devolucao/devolucao';
 import { uploadImageMinio } from '@/_services/http/minio.http';
 import { useConferenceStore } from '@/_shared/stores';
 
-/**
- * Helper function to convert base64 string to File (for multipart/form-data)
- */
-function base64ToFile(base64: string, filename: string = 'image.jpg', mimeType: string = 'image/jpeg'): File {
-  // Remove data URL prefix if present (e.g., "data:image/jpeg;base64,")
-  const base64Data = base64.includes(',') ? base64.split(',')[1] : base64;
+// Função auxiliar para comprimir e converter Base64 -> WebP
+async function compressBase64ToWebP(base64: string, filename: string): Promise<File> {
   
-  // Convert base64 to binary
-  const byteCharacters = atob(base64Data);
-  const byteNumbers = new Array(byteCharacters.length);
+  const base64WithPrefix = base64.startsWith('data:') 
+    ? base64 
+    : `data:image/jpeg;base64,${base64}`;
+
+    const response = await fetch(base64WithPrefix);
+    const blob = await response.blob();
+    const originalFile = new File([blob], filename, { type: 'image/jpeg' });
+
+  // Converte base64 para Blob inicial
   
-  for (let i = 0; i < byteCharacters.length; i++) {
-    byteNumbers[i] = byteCharacters.charCodeAt(i);
-  }
+  const options = {
+    maxSizeMB: 0.8,
+    maxWidthOrHeight: 1920,
+    useWebWorker: true,
+    fileType: 'image/webp' as string,
+  };
+
+  const compressedBlob = await imageCompression(originalFile, options);
   
-  const byteArray = new Uint8Array(byteNumbers);
-  const blob = new Blob([byteArray], { type: mimeType });
-  
-  // Convert Blob to File
-  return new File([blob], filename, { type: mimeType });
+  // Troca a extensão original para .webp
+  const newFilename = filename.replace(/\.[^/.]+$/, "") + ".webp";
+  return new File([compressedBlob], newFilename, { type: 'image/webp' });
 }
 
-/**
- * Hook for syncing anomalies with backend using Orval mutation
- * Handles multipart/form-data format with File objects
- */
 export function useSyncAnomalia() {
   const { mutateAsync } = useAddAnomaliaDevolucao();
   const { mutateAsync: getPresignedUrlAnomaliaDevolucao } = useGetPresignedUrlAnomaliaDevolucao();
@@ -40,68 +42,61 @@ export function useSyncAnomalia() {
       try {
         const [natureza, tipo, causa] = anomaly.description.split(' | ');
         
-        if (!natureza || !tipo || !causa) {
-          console.warn(`[useSyncAnomalia] Skipping anomaly ${anomaly.id} - invalid description format`);
-          continue;
-        }
+        if (!natureza || !tipo || !causa) continue;
 
-        // Convert base64 photo strings to File objects for multipart/form-data
-        const imageFiles: File[] = [];
+        // 1. COMPRESSÃO: Processa todas as fotos em paralelo
+        let imageFiles: File[] = [];
         if (anomaly.photos && Array.isArray(anomaly.photos)) {
-          anomaly.photos.forEach((photo, index) => {
-            if (photo && typeof photo === 'string') {
-              const filename = `anomalia-${anomaly.demandaId}-${anomaly.sku}-${index + 1}.jpg`;
-              imageFiles.push(base64ToFile(photo, filename));
-            }
-          });
+          imageFiles = await Promise.all(
+            anomaly.photos.map((photo, index) => 
+              compressBase64ToWebP(
+                photo, 
+                `anomalia-${anomaly.demandaId}-${anomaly.sku}-${index + 1}.jpg`
+              )
+            )
+          );
         }
 
-        // Validate that we have at least one image
-        if (imageFiles.length === 0) {
-          console.warn(`[useSyncAnomalia] Skipping anomaly ${anomaly.id} - no photos found`);
-          continue;
-        }
+        if (imageFiles.length === 0) continue;
 
+        // 2. PRESIGNED URLS: Pede uma URL para cada arquivo WebP já comprimido
         const urlsPresigned = await Promise.all(imageFiles.map(async (file) => {
           return await getPresignedUrlAnomaliaDevolucao({
-            filename: file.name,
+            filename: file.name, // O nome já termina em .webp
           });
         }));
 
-        await Promise.all(urlsPresigned.map(async (url) => {
-          await uploadImageMinio(url, imageFiles[urlsPresigned.indexOf(url)]);
+        // 3. UPLOAD: Envia cada arquivo para sua respectiva URL
+        await Promise.all(urlsPresigned.map((url, index) => {
+          return uploadImageMinio(url, imageFiles[index]);
         }));
 
-        const filenames = imageFiles.map((targetFile) => targetFile.name);
+        // 4. PERSISTÊNCIA: Envia os nomes dos arquivos (.webp) para o banco
+        const filenames = imageFiles.map((f) => f.name);
 
         await mutateAsync({
           data: {
-            causa: causa,
+            causa,
             descricao: anomaly.description,
             sku: anomaly.sku,
             quantidadeCaixas: anomaly.quantityBox || 0,
             quantidadeUnidades: anomaly.quantityUnit || 0,
             lote: anomaly.lote || '',
-            natureza: natureza,
-            tipo: tipo,
-            // Type assertion: API expects File[] for multipart/form-data, but type definition says string[]
-            imagens: filenames,
+            natureza,
+            tipo,
+            imagens: filenames, 
             demandaId: Number(anomaly.demandaId),
             tratado: false
           },
         });
 
-        // Mark as synced after successful upload
         markAnomalyAsSynced(anomaly.id!);
-        console.log(`[useSyncAnomalia] Anomaly ${anomaly.id} synced successfully`);
       } catch (error) {
         console.error(`[useSyncAnomalia] Error syncing anomaly ${anomaly.id}:`, error);
-        throw error; // Re-throw to allow caller to handle
+        throw error;
       }
     }
   }
 
-  return {
-    syncAnomalias,
-  };
+  return { syncAnomalias };
 }
