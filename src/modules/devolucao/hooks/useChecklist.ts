@@ -91,6 +91,7 @@ export function useChecklist() {
 
   /**
    * Checks if current step can proceed (validation)
+   * Temperatura do Baú e do Produto são obrigatórias para avançar da etapa de temperatura.
    */
   const canProceed = useCallback((): boolean => {
     if (!currentChecklist) return false;
@@ -100,8 +101,11 @@ export function useChecklist() {
         return !!currentChecklist.fotoBauFechado;
       case 'truck_open_photo':
         return !!currentChecklist.fotoBauAberto;
-      case 'temperature':
-        return !!currentChecklist.temperaturaBau && !!currentChecklist.temperaturaProduto;
+      case 'temperature': {
+        const tempBau = (currentChecklist.temperaturaBau ?? '').trim();
+        const tempProduto = (currentChecklist.temperaturaProduto ?? '').trim();
+        return tempBau !== '' && tempProduto !== '';
+      }
       case 'observations':
         return true; // Opcional
       default:

@@ -1,3 +1,4 @@
+import imageCompression from 'browser-image-compression';
 import { useAddCheckListDevolucaoMobile, useGetPresignedUrlCheckListDevolucao } from '@/_services/api/service/devolucao/devolucao';
 import { uploadImageMinio } from '@/_services/http/minio.http';
 import { useChecklistStore } from '@/_shared/stores';
@@ -5,7 +6,7 @@ import { useChecklistStore } from '@/_shared/stores';
 /**
  * Helper function to convert base64 string to File (for multipart/form-data)
  */
-function base64ToFile(base64: string, filename: string = 'image.jpg', mimeType: string = 'image/jpeg'): File {
+/*function base64ToFile(base64: string, filename: string = 'image.jpg', mimeType: string = 'image/jpeg'): File {
   // Remove data URL prefix if present (e.g., "data:image/jpeg;base64,")
   const base64Data = base64.includes(',') ? base64.split(',')[1] : base64;
   
@@ -22,7 +23,7 @@ function base64ToFile(base64: string, filename: string = 'image.jpg', mimeType: 
   
   // Convert Blob to File
   return new File([blob], filename, { type: mimeType });
-}
+} */
 
 /**
  * Hook for syncing checklist with backend using Orval mutation
@@ -32,6 +33,29 @@ export function useSyncCheckList() {
   const { mutateAsync } = useAddCheckListDevolucaoMobile();
   const { getAllChecklists, markAsSynced } = useChecklistStore();
   const { mutateAsync: getPresignedUrlCheckListDevolucao } = useGetPresignedUrlCheckListDevolucao();
+
+  async function compressAndConvertToWebP(base64: string, filename: string): Promise<File> {
+    // 1. Converte Base64 para um objeto File inicial (seu método original ou via fetch)
+    const response = await fetch(base64);
+    const blob = await response.blob();
+    const originalFile = new File([blob], filename, { type: blob.type });
+
+    // 2. Configurações de compressão
+    const options = {
+      maxSizeMB: 0.8,           // Alvo de 800KB (ajuste conforme necessário)
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+      fileType: 'image/webp' as string, // Força a saída para WebP
+    };
+
+    // 3. Executa a compressão
+    const compressedBlob = await imageCompression(originalFile, options);
+    
+    // 4. Retorna como um File com a extensão correta
+    const newFilename = filename.replace(/\.[^/.]+$/, "") + ".webp";
+    return new File([compressedBlob], newFilename, { type: 'image/webp' });
+  }
+
 
   async function syncCheckLists() {
     const unsyncedChecklists = (await getAllChecklists()).filter(d => d.synced === false);
@@ -47,25 +71,31 @@ export function useSyncCheckList() {
         const filenameBauAberto = `bau-aberto-${checklist.demandaId}.jpg`;
         const filenameBauFechado = `bau-fechado-${checklist.demandaId}.jpg`;
 
-        const bauAbertoPresignedUrl = await getPresignedUrlCheckListDevolucao({
-          filename: filenameBauAberto,
-        });
-
-        const bauFechadoPresignedUrl = await getPresignedUrlCheckListDevolucao({
-          filename: filenameBauFechado,
-        });
 
         // Convert base64 strings to File for multipart/form-data
-        const fotoBauAbertoFile = checklist.fotoBauAberto 
-          ? base64ToFile(checklist.fotoBauAberto, filenameBauAberto)
-          : new File([], filenameBauAberto, { type: 'image/jpeg' });
-        
-        const fotoBauFechadoFile = checklist.fotoBauFechado 
-          ? base64ToFile(checklist.fotoBauFechado, filenameBauFechado)
-          : new File([], filenameBauFechado, { type: 'image/jpeg' });
+        const fileBauAberto = checklist.fotoBauAberto 
+        ? await compressAndConvertToWebP(checklist.fotoBauAberto, `bau-aberto-${checklist.demandaId}.jpg`)
+        : null;
 
-        await uploadImageMinio(bauAbertoPresignedUrl, fotoBauAbertoFile);
-        await uploadImageMinio(bauFechadoPresignedUrl, fotoBauFechadoFile);
+      const fileBauFechado = checklist.fotoBauFechado 
+        ? await compressAndConvertToWebP(checklist.fotoBauFechado, `bau-fechado-${checklist.demandaId}.jpg`)
+        : null;
+
+        const bauAbertoPresignedUrl = fileBauAberto 
+        ? await getPresignedUrlCheckListDevolucao({ filename: fileBauAberto.name }) // backend deve inferir webp pelo nome ou tipo
+        : null;
+
+      const bauFechadoPresignedUrl = fileBauFechado 
+        ? await getPresignedUrlCheckListDevolucao({ filename: fileBauFechado.name }) 
+        : null;
+
+        if (bauAbertoPresignedUrl && fileBauAberto) {
+          await uploadImageMinio(bauAbertoPresignedUrl, fileBauAberto);
+        }
+
+        if (bauFechadoPresignedUrl && fileBauFechado) {
+          await uploadImageMinio(bauFechadoPresignedUrl, fileBauFechado);
+        }
 
         await mutateAsync({
           demandaId: checklist.demandaId,
