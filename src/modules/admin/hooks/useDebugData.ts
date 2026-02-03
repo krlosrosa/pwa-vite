@@ -156,13 +156,6 @@ export function useDebugData() {
     });
 
     // Debug log
-    console.log('[DebugPage] Images size calculation:', {
-      totalBytes,
-      checklistImages: checklistCount,
-      anomalyPhotos: anomalyPhotoCount,
-      checklistsCount: checklists.length,
-      anomaliesCount: anomalies.length,
-    });
 
     return totalBytes;
   }, [checklists, anomalies]);
@@ -190,10 +183,6 @@ export function useDebugData() {
       produtos: produtos,
       timestamp: new Date().toISOString(),
     };
-
-    console.log('=== DATABASE EXPORT ===');
-    console.log(JSON.stringify(data, null, 2));
-    console.log('=======================');
 
     // Also copy to clipboard if possible
     try {

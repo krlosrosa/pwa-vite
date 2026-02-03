@@ -15,7 +15,8 @@ export function useSyncConferencia() {
 
   async function syncConferences() {
     const demands = (await getAllDemandsWithItems()).filter(
-      d => d.stats.syncedConferences === 0 && d.finalizada === true);
+      d => d.synced === false && d.finalizada === true);
+      console.log(demands)
     for (const demand of demands) {
       const conferences: AddConferenciaCegaDto[] = demand.conferences.map(item => ({
         descricao: item.description,

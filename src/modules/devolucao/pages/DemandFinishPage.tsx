@@ -57,7 +57,7 @@ export default function DemandFinishPage() {
       await markDemandAsFinalized(demandaId);
       
       // Sync all data: produtos, anomalies, conferences, checklists, and demands
-       await syncProdutos();
+    await syncProdutos();
       await syncAnomalias();
       await syncConferences();
       await syncCheckLists();
