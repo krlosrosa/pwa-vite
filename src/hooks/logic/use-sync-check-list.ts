@@ -68,10 +68,6 @@ export function useSyncCheckList() {
           continue;
         }
 
-        const filenameBauAberto = `bau-aberto-${checklist.demandaId}.jpg`;
-        const filenameBauFechado = `bau-fechado-${checklist.demandaId}.jpg`;
-
-
         // Convert base64 strings to File for multipart/form-data
         const fileBauAberto = checklist.fotoBauAberto 
         ? await compressAndConvertToWebP(checklist.fotoBauAberto, `bau-aberto-${checklist.demandaId}.jpg`)
@@ -104,8 +100,8 @@ export function useSyncCheckList() {
             temperaturaBau: checklist.temperaturaBau || '',
             temperaturaProduto: checklist.temperaturaProduto || '',
             anomalias: checklist.anomalias || undefined,
-            fotoBauAberto: filenameBauAberto,
-            fotoBauFechado: filenameBauFechado,
+            fotoBauAberto: fileBauAberto?.name || '',
+            fotoBauFechado: fileBauFechado?.name || '',
           }
         });
 
