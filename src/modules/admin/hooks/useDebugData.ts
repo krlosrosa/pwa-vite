@@ -94,6 +94,7 @@ export function useDebugData() {
   /**
    * Clear all local data (except produtos - they are preserved)
    */
+
   const clearAllData = useCallback(async () => {
     if (!confirm('Tem certeza que deseja limpar TODOS os dados locais? Esta ação não pode ser desfeita.\n\nNota: Os produtos não serão removidos.')) {
       return;
