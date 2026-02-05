@@ -12,7 +12,7 @@ export function useSyncDemand() {
   const { getAllDemands, markDemandAsSynced } = useDemandStore()
 
   async function syncDemands() {
-    const demands = (await getAllDemands()).filter(d => d.synced === false);
+    const demands = (await getAllDemands()).filter(d => d.synced === false && d.finalizada === true);
     for (const demand of demands) {
         // Load demand data to get doca and placa
         await mutateAsync({
