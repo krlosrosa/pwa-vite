@@ -1,3 +1,4 @@
+import { RotateCcw } from 'lucide-react';
 import { PageContainer } from '@/_shared/components/layout/PageContainer';
 import { PageHeader } from '@/_shared/components/layout/PageHeader';
 import { BottomActionBar } from '@/_shared/components/layout/BottomActionBar';
@@ -29,6 +30,7 @@ export default function ItemConferencePage() {
     setProductValidationCode,
     handleQuickSetExpected,
     handleConfirmConference,
+    handleRemoveConference,
     handleNavigateToAnomaly,
     handleDeleteAnomaly,
   } = useItemConference();
@@ -64,7 +66,6 @@ export default function ItemConferencePage() {
 
       <div className="p-4 space-y-2">
         <ProductInfoCard conference={conference} />
-
         <ConferenceForm
           conference={conference}
           boxQuantity={boxQuantity}
@@ -86,6 +87,18 @@ export default function ItemConferencePage() {
           conference={conference}
           onNavigate={handleNavigateToAnomaly}
         />
+
+        {conference.isChecked && (
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full text-destructive border-destructive/50 hover:bg-destructive/10"
+            onClick={handleRemoveConference}
+          >
+            <RotateCcw className="h-4 w-4 mr-2" />
+            Remover conferência
+          </Button>
+        )}
 
         <BottomActionBar>
           <Button

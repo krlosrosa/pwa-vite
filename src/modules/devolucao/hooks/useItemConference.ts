@@ -240,6 +240,43 @@ export function useItemConference() {
     }
   }, [deleteAnomaly, loadAnomaliesByItem, itemId]);
 
+  /**
+   * Remove conference: set item back to not checked, reset quantities and lote.
+   * Only available when item is already checked. Stays on page so user can reconfer.
+   */
+  const handleRemoveConference = useCallback(async () => {
+    if (!conference?.isChecked) return;
+    if (!window.confirm('Remover a conferência deste item? O item voltará a constar como não conferido.')) {
+      return;
+    }
+
+    try {
+      await saveConference({
+        itemId: conference.itemId,
+        demandaId: conference.demandaId,
+        sku: conference.sku,
+        description: conference.description,
+        expectedQuantity: conference.expectedQuantity,
+        checkedQuantity: 0,
+        expectedBoxQuantity: conference.expectedBoxQuantity,
+        boxQuantity: undefined,
+        lote: '',
+        isChecked: false,
+        isExtra: conference.isExtra,
+      });
+
+      // Update local state: conference is now unchecked
+      setConference(prev => prev ? { ...prev, isChecked: false, checkedQuantity: 0, boxQuantity: undefined, lote: '' } : null);
+      setCheckedQuantity(conference.expectedQuantity.toString());
+      setBoxQuantity('');
+      setLote('');
+      setProductValidationCode('');
+    } catch (error) {
+      console.error('Error removing conference:', error);
+      alert('Erro ao remover conferência. Tente novamente.');
+    }
+  }, [conference, saveConference]);
+
   return {
     demandaId,
     itemId,
@@ -259,6 +296,7 @@ export function useItemConference() {
     setProductValidationCode,
     handleQuickSetExpected,
     handleConfirmConference,
+    handleRemoveConference,
     handleNavigateToAnomaly,
     handleDeleteAnomaly,
   };
