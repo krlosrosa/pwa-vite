@@ -3,6 +3,7 @@ import type { DemandDto } from '@/_services/api/model';
 import { Card, CardContent } from './ui/card';
 import { cn } from '../lib/utils';
 import { Badge } from './ui/badge';
+import { formatarDataUTC } from '../lib/convertHourUtc';
 
 
 interface DemandCardProps {
@@ -17,7 +18,7 @@ interface DemandCardProps {
 
 export function DemandCard({ demand, hasDraft = false, demandStoreData, onClick }: DemandCardProps) {
 
-  const formattedDate = new Date(demand.criadoEm).toLocaleDateString('pt-BR', {
+  const formattedDate = new Date(formatarDataUTC(demand.criadoEm)).toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
