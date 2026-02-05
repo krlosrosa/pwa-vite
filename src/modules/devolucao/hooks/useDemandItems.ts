@@ -40,6 +40,7 @@ export interface ConferenceStats {
 export interface FilterState {
   searchTerm: string;
   showOnlyChecked: boolean;
+  showOnlyUnchecked: boolean;
   showOnlyAnomalies: boolean;
 }
 
@@ -65,6 +66,8 @@ export interface UseDemandItemsReturn {
   isSyncing: boolean;
   /** Toggle filter for showing only checked items */
   toggleFilter: (showOnlyChecked: boolean) => void;
+  /** Toggle filter for showing only unchecked items */
+  toggleUncheckedFilter: (showOnlyUnchecked: boolean) => void;
   /** Toggle filter for showing only items with anomalies */
   toggleAnomaliesFilter: (showOnlyAnomalies: boolean) => void;
   /** Update search filter */
@@ -77,6 +80,39 @@ export interface UseDemandItemsReturn {
   handleFinishConference: () => Promise<void>;
   /** Refresh API data */
   refetchApiItems: () => void;
+}
+
+const STORAGE_KEY_PREFIX = 'demand-items-filters';
+
+function getStoredFilters(demandaId: string): FilterState {
+  try {
+    const raw = sessionStorage.getItem(`${STORAGE_KEY_PREFIX}-${demandaId}`);
+    if (raw) {
+      const parsed = JSON.parse(raw) as Partial<FilterState>;
+      return {
+        searchTerm: typeof parsed.searchTerm === 'string' ? parsed.searchTerm : '',
+        showOnlyChecked: !!parsed.showOnlyChecked,
+        showOnlyUnchecked: !!parsed.showOnlyUnchecked,
+        showOnlyAnomalies: !!parsed.showOnlyAnomalies,
+      };
+    }
+  } catch {
+    // ignore
+  }
+  return {
+    searchTerm: '',
+    showOnlyChecked: false,
+    showOnlyUnchecked: false,
+    showOnlyAnomalies: false,
+  };
+}
+
+function persistFilters(demandaId: string, state: FilterState): void {
+  try {
+    sessionStorage.setItem(`${STORAGE_KEY_PREFIX}-${demandaId}`, JSON.stringify(state));
+  } catch {
+    // ignore
+  }
 }
 
 /**
@@ -113,9 +149,10 @@ const mapApiItemToConference = (apiItem: ItensContabilDto, demandaId: string) =>
  */
 export function useDemandItems(demandaId: string): UseDemandItemsReturn {
   const navigate = useNavigate();
-  const [filter, setFilter] = useState('');
-  const [showOnlyChecked, setShowOnlyChecked] = useState(false);
-  const [showOnlyAnomalies, setShowOnlyAnomalies] = useState(false);
+  const [filter, setFilter] = useState(() => getStoredFilters(demandaId).searchTerm);
+  const [showOnlyChecked, setShowOnlyChecked] = useState(() => getStoredFilters(demandaId).showOnlyChecked);
+  const [showOnlyUnchecked, setShowOnlyUnchecked] = useState(() => getStoredFilters(demandaId).showOnlyUnchecked);
+  const [showOnlyAnomalies, setShowOnlyAnomalies] = useState(() => getStoredFilters(demandaId).showOnlyAnomalies);
   const [conferences, setConferences] = useState<ConferenceRecord[]>([]);
   const [anomalies, setAnomalies] = useState<Map<string, boolean>>(new Map()); // Map<itemId, hasAnomaly>
   const [stats, setStats] = useState<ConferenceStats>({ 
@@ -125,6 +162,25 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
     hasDivergences: false 
   });
   const hydrationRef = useRef(false);
+
+  // Restore filters when demandaId changes (e.g. navigated to another demand's items)
+  useEffect(() => {
+    const stored = getStoredFilters(demandaId);
+    setFilter(stored.searchTerm);
+    setShowOnlyChecked(stored.showOnlyChecked);
+    setShowOnlyUnchecked(stored.showOnlyUnchecked);
+    setShowOnlyAnomalies(stored.showOnlyAnomalies);
+  }, [demandaId]);
+
+  // Persist filters whenever they change (so they survive navigation to conference and back)
+  useEffect(() => {
+    persistFilters(demandaId, {
+      searchTerm: filter,
+      showOnlyChecked,
+      showOnlyUnchecked,
+      showOnlyAnomalies,
+    });
+  }, [demandaId, filter, showOnlyChecked, showOnlyUnchecked, showOnlyAnomalies]);
 
   // Orval hook to fetch accounting items from API
   const { 
@@ -345,6 +401,11 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
       filtered = filtered.filter(item => item.isChecked);
     }
 
+    // Filter by "apenas não conferidos"
+    if (showOnlyUnchecked) {
+      filtered = filtered.filter(item => !item.isChecked);
+    }
+
     // Filter by "apenas com anomalias"
     if (showOnlyAnomalies) {
       filtered = filtered.filter(item => item.hasAnomaly === true);
@@ -359,14 +420,25 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
       );
     }
 
-    return filtered;
-  }, [items, filter, showOnlyChecked, showOnlyAnomalies]);
+    // Ordenação: itens não conferidos primeiro, conferidos no final
+    return [...filtered].sort((a, b) => {
+      if (a.isChecked === b.isChecked) return 0;
+      return a.isChecked ? 1 : -1; // false (não conferido) antes de true (conferido)
+    });
+  }, [items, filter, showOnlyChecked, showOnlyUnchecked, showOnlyAnomalies]);
 
   /**
    * Toggle filter for showing only checked items
    */
   const toggleFilter = useCallback((checked: boolean) => {
     setShowOnlyChecked(checked);
+  }, []);
+
+  /**
+   * Toggle filter for showing only unchecked items
+   */
+  const toggleUncheckedFilter = useCallback((checked: boolean) => {
+    setShowOnlyUnchecked(checked);
   }, []);
 
   /**
@@ -470,6 +542,7 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
     filters: {
       searchTerm: filter,
       showOnlyChecked,
+      showOnlyUnchecked,
       showOnlyAnomalies,
     },
     isLoadingApi,
@@ -477,6 +550,7 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
     hasLocalData,
     isSyncing: syncMutation.isPending,
     toggleFilter,
+    toggleUncheckedFilter,
     toggleAnomaliesFilter,
     setSearchFilter,
     navigateToConference,

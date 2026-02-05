@@ -1,4 +1,4 @@
-import { CheckCircle, Package, RefreshCw, WifiOff, Plus, AlertTriangle } from 'lucide-react';
+import { CheckCircle, Circle, Package, RefreshCw, WifiOff, Plus, AlertTriangle } from 'lucide-react';
 import { useParams } from '@tanstack/react-router';
 import { PageContainer } from '@/_shared/components/layout/PageContainer';
 import { PageHeader } from '@/_shared/components/layout/PageHeader';
@@ -24,6 +24,7 @@ export default function DemandItemsPage() {
     hasLocalData,
     isSyncing,
     toggleFilter,
+    toggleUncheckedFilter,
     toggleAnomaliesFilter,
     setSearchFilter,
     navigateToConference,
@@ -77,6 +78,20 @@ export default function DemandItemsPage() {
             </div>
             
             <div className="h-px bg-border" />
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="show-unchecked" className="text-sm font-medium text-foreground flex items-center gap-2">
+                <Circle className="h-4 w-4 text-muted-foreground" />
+                Mostrar apenas não conferidos
+              </Label>
+              <Switch
+                id="show-unchecked"
+                checked={filters.showOnlyUnchecked}
+                onCheckedChange={toggleUncheckedFilter}
+              />
+            </div>
+            
+            <div className="h-px bg-border" />
             
             <div className="flex items-center justify-between">
               <Label htmlFor="show-anomalies" className="text-sm font-medium text-foreground flex items-center gap-2">
@@ -110,12 +125,18 @@ export default function DemandItemsPage() {
               />
             ) : (
               <EmptyState
-                icon={filters.showOnlyAnomalies ? <AlertTriangle className="h-8 w-8" /> : <Package className="h-8 w-8" />}
+                icon={
+                  filters.showOnlyAnomalies ? <AlertTriangle className="h-8 w-8" /> 
+                    : filters.showOnlyUnchecked ? <Circle className="h-8 w-8" /> 
+                    : <Package className="h-8 w-8" />
+                }
                 title={
                   filters.searchTerm 
                     ? 'Nenhum item encontrado' 
                     : filters.showOnlyAnomalies 
                     ? 'Nenhum item com anomalias' 
+                    : filters.showOnlyUnchecked
+                    ? 'Nenhum item não conferido'
                     : 'Nenhum item'
                 }
                 description={
@@ -123,6 +144,8 @@ export default function DemandItemsPage() {
                     ? 'Tente buscar por outro termo.' 
                     : filters.showOnlyAnomalies
                     ? 'Não há itens com anomalias registradas nesta demanda.'
+                    : filters.showOnlyUnchecked
+                    ? 'Todos os itens desta demanda já foram conferidos.'
                     : 'Não há itens nesta demanda.'
                 }
               />
