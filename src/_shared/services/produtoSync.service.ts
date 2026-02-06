@@ -1,5 +1,7 @@
+import { mapProdutoDtoToCreate } from '@/_services/api/mapper/produtoMapper';
+import type { CreateProdutoDto } from '@/_services/api/model';
 import { useFindAllProdutos, findAllProdutos } from '@/_services/api/service/produto/produto';
-import { useProdutoStore, type ProdutoItem } from '@/_shared/stores/produtoStore';
+import { useProdutoStore } from '@/_shared/stores/produtoStore';
 
 /**
  * Hook para sincronizar o catálogo de produtos local com a API
@@ -34,28 +36,27 @@ export function useProdutoSync() {
   const syncNow = async () => {
     try {
       // Tenta usar refetch primeiro, se não funcionar, chama diretamente a API
-      let produtosData: ProdutoItem[] | undefined;
+      let produtosData: Awaited<ReturnType<typeof findAllProdutos>>;
       
       try {
         const result = await refetch();
-        produtosData = result.data;
-        
-        if (result.error) {
-          console.warn('refetch() retornou erro, tentando chamada direta:', result.error);
-          // Se refetch falhar, tenta chamada direta
+        if (result.error || !result.data) {
+          console.warn('refetch() retornou erro ou sem dados, tentando chamada direta:', result.error);
           produtosData = await findAllProdutos();
+        } else {
+          produtosData = result.data;
         }
       } catch (refetchError) {
         console.warn('refetch() falhou, tentando chamada direta:', refetchError);
-        // Se refetch falhar completamente, tenta chamada direta
         produtosData = await findAllProdutos();
       }
       
       if (produtosData && Array.isArray(produtosData)) {
-        console.log(`Sincronizando ${produtosData.length} produtos...`);
-        setProdutos(produtosData);
+        const storeItems: CreateProdutoDto[] = produtosData.map(mapProdutoDtoToCreate);
+        console.log(`Sincronizando ${storeItems.length} produtos...`);
+        setProdutos(storeItems);
         console.log('Produtos sincronizados com sucesso!');
-        return { data: produtosData, error: null };
+        return { data: storeItems, error: null };
       } else {
         console.warn('Nenhum dado retornado da API de produtos');
         throw new Error('Nenhum dado retornado da API de produtos');

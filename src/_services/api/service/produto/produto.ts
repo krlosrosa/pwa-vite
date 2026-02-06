@@ -6,31 +6,26 @@
  * OpenAPI spec version: 1.0
  */
 import {
-  useMutation,
   useQuery
 } from '@tanstack/react-query';
 import type {
   DataTag,
   DefinedInitialDataOptions,
   DefinedUseQueryResult,
-  MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
-  UseMutationOptions,
-  UseMutationResult,
   UseQueryOptions,
   UseQueryResult
 } from '@tanstack/react-query';
 
 import type {
-  CreateProdutoDto,
-  UpdateProdutoDto
+  ProdutoDto
 } from '../../model';
 
 import { axiosFetcher } from '../../../http/axios.http';
-import type { ErrorType , BodyType } from '../../../http/axios.http';
+import type { ErrorType } from '../../../http/axios.http';
 
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
@@ -38,70 +33,6 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 /**
- * @summary Criar um novo produto
- */
-export const createProduto = (
-    createProdutoDto: BodyType<CreateProdutoDto>,
- options?: SecondParameter<typeof axiosFetcher>,signal?: AbortSignal
-) => {
-      
-      
-      return axiosFetcher<void>(
-      {url: `/api/produto`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: createProdutoDto, signal
-    },
-      options);
-    }
-  
-
-
-export const getCreateProdutoMutationOptions = <TError = ErrorType<void | void | void | void | void | void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createProduto>>, TError,{data: BodyType<CreateProdutoDto>}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
-): UseMutationOptions<Awaited<ReturnType<typeof createProduto>>, TError,{data: BodyType<CreateProdutoDto>}, TContext> => {
-
-const mutationKey = ['createProduto'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createProduto>>, {data: BodyType<CreateProdutoDto>}> = (props) => {
-          const {data} = props ?? {};
-
-          return  createProduto(data,requestOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type CreateProdutoMutationResult = NonNullable<Awaited<ReturnType<typeof createProduto>>>
-    export type CreateProdutoMutationBody = BodyType<CreateProdutoDto>
-    export type CreateProdutoMutationError = ErrorType<void | void | void | void | void | void>
-
-    /**
- * @summary Criar um novo produto
- */
-export const useCreateProduto = <TError = ErrorType<void | void | void | void | void | void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createProduto>>, TError,{data: BodyType<CreateProdutoDto>}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof createProduto>>,
-        TError,
-        {data: BodyType<CreateProdutoDto>},
-        TContext
-      > => {
-
-      const mutationOptions = getCreateProdutoMutationOptions(options);
-
-      return useMutation(mutationOptions, queryClient);
-    }
-    /**
  * @summary Buscar todos os produtos
  */
 export const findAllProdutos = (
@@ -110,7 +41,7 @@ export const findAllProdutos = (
 ) => {
       
       
-      return axiosFetcher<CreateProdutoDto[]>(
+      return axiosFetcher<ProdutoDto[]>(
       {url: `/api/produto`, method: 'GET', signal
     },
       options);
@@ -126,7 +57,7 @@ export const getFindAllProdutosQueryKey = () => {
     }
 
     
-export const getFindAllProdutosQueryOptions = <TData = Awaited<ReturnType<typeof findAllProdutos>>, TError = ErrorType<void | void | void | void | void | void>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof findAllProdutos>>, TError, TData>>, request?: SecondParameter<typeof axiosFetcher>}
+export const getFindAllProdutosQueryOptions = <TData = Awaited<ReturnType<typeof findAllProdutos>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof findAllProdutos>>, TError, TData>>, request?: SecondParameter<typeof axiosFetcher>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -145,10 +76,10 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type FindAllProdutosQueryResult = NonNullable<Awaited<ReturnType<typeof findAllProdutos>>>
-export type FindAllProdutosQueryError = ErrorType<void | void | void | void | void | void>
+export type FindAllProdutosQueryError = ErrorType<unknown>
 
 
-export function useFindAllProdutos<TData = Awaited<ReturnType<typeof findAllProdutos>>, TError = ErrorType<void | void | void | void | void | void>>(
+export function useFindAllProdutos<TData = Awaited<ReturnType<typeof findAllProdutos>>, TError = ErrorType<unknown>>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof findAllProdutos>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof findAllProdutos>>,
@@ -158,7 +89,7 @@ export function useFindAllProdutos<TData = Awaited<ReturnType<typeof findAllProd
       >, request?: SecondParameter<typeof axiosFetcher>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useFindAllProdutos<TData = Awaited<ReturnType<typeof findAllProdutos>>, TError = ErrorType<void | void | void | void | void | void>>(
+export function useFindAllProdutos<TData = Awaited<ReturnType<typeof findAllProdutos>>, TError = ErrorType<unknown>>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof findAllProdutos>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof findAllProdutos>>,
@@ -168,7 +99,7 @@ export function useFindAllProdutos<TData = Awaited<ReturnType<typeof findAllProd
       >, request?: SecondParameter<typeof axiosFetcher>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useFindAllProdutos<TData = Awaited<ReturnType<typeof findAllProdutos>>, TError = ErrorType<void | void | void | void | void | void>>(
+export function useFindAllProdutos<TData = Awaited<ReturnType<typeof findAllProdutos>>, TError = ErrorType<unknown>>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof findAllProdutos>>, TError, TData>>, request?: SecondParameter<typeof axiosFetcher>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
@@ -176,7 +107,7 @@ export function useFindAllProdutos<TData = Awaited<ReturnType<typeof findAllProd
  * @summary Buscar todos os produtos
  */
 
-export function useFindAllProdutos<TData = Awaited<ReturnType<typeof findAllProdutos>>, TError = ErrorType<void | void | void | void | void | void>>(
+export function useFindAllProdutos<TData = Awaited<ReturnType<typeof findAllProdutos>>, TError = ErrorType<unknown>>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof findAllProdutos>>, TError, TData>>, request?: SecondParameter<typeof axiosFetcher>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -192,284 +123,3 @@ export function useFindAllProdutos<TData = Awaited<ReturnType<typeof findAllProd
 
 
 
-/**
- * @summary Criar múltiplos produtos
- */
-export const createManyProdutos = (
-    createProdutoDto: BodyType<CreateProdutoDto[]>,
- options?: SecondParameter<typeof axiosFetcher>,signal?: AbortSignal
-) => {
-      
-      
-      return axiosFetcher<void>(
-      {url: `/api/produto/many`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: createProdutoDto, signal
-    },
-      options);
-    }
-  
-
-
-export const getCreateManyProdutosMutationOptions = <TError = ErrorType<void | void | void | void | void | void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createManyProdutos>>, TError,{data: BodyType<CreateProdutoDto[]>}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
-): UseMutationOptions<Awaited<ReturnType<typeof createManyProdutos>>, TError,{data: BodyType<CreateProdutoDto[]>}, TContext> => {
-
-const mutationKey = ['createManyProdutos'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createManyProdutos>>, {data: BodyType<CreateProdutoDto[]>}> = (props) => {
-          const {data} = props ?? {};
-
-          return  createManyProdutos(data,requestOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type CreateManyProdutosMutationResult = NonNullable<Awaited<ReturnType<typeof createManyProdutos>>>
-    export type CreateManyProdutosMutationBody = BodyType<CreateProdutoDto[]>
-    export type CreateManyProdutosMutationError = ErrorType<void | void | void | void | void | void>
-
-    /**
- * @summary Criar múltiplos produtos
- */
-export const useCreateManyProdutos = <TError = ErrorType<void | void | void | void | void | void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createManyProdutos>>, TError,{data: BodyType<CreateProdutoDto[]>}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof createManyProdutos>>,
-        TError,
-        {data: BodyType<CreateProdutoDto[]>},
-        TContext
-      > => {
-
-      const mutationOptions = getCreateManyProdutosMutationOptions(options);
-
-      return useMutation(mutationOptions, queryClient);
-    }
-    /**
- * @summary Buscar um produto pelo SKU
- */
-export const findProdutoBySku = (
-    sku: string,
- options?: SecondParameter<typeof axiosFetcher>,signal?: AbortSignal
-) => {
-      
-      
-      return axiosFetcher<void>(
-      {url: `/api/produto/${sku}`, method: 'GET', signal
-    },
-      options);
-    }
-  
-
-
-
-export const getFindProdutoBySkuQueryKey = (sku?: string,) => {
-    return [
-    `/api/produto/${sku}`
-    ] as const;
-    }
-
-    
-export const getFindProdutoBySkuQueryOptions = <TData = Awaited<ReturnType<typeof findProdutoBySku>>, TError = ErrorType<void | void | void | void | void | void>>(sku: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof findProdutoBySku>>, TError, TData>>, request?: SecondParameter<typeof axiosFetcher>}
-) => {
-
-const {query: queryOptions, request: requestOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getFindProdutoBySkuQueryKey(sku);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof findProdutoBySku>>> = ({ signal }) => findProdutoBySku(sku, requestOptions, signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, enabled: !!(sku), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof findProdutoBySku>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type FindProdutoBySkuQueryResult = NonNullable<Awaited<ReturnType<typeof findProdutoBySku>>>
-export type FindProdutoBySkuQueryError = ErrorType<void | void | void | void | void | void>
-
-
-export function useFindProdutoBySku<TData = Awaited<ReturnType<typeof findProdutoBySku>>, TError = ErrorType<void | void | void | void | void | void>>(
- sku: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof findProdutoBySku>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof findProdutoBySku>>,
-          TError,
-          Awaited<ReturnType<typeof findProdutoBySku>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof axiosFetcher>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useFindProdutoBySku<TData = Awaited<ReturnType<typeof findProdutoBySku>>, TError = ErrorType<void | void | void | void | void | void>>(
- sku: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof findProdutoBySku>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof findProdutoBySku>>,
-          TError,
-          Awaited<ReturnType<typeof findProdutoBySku>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof axiosFetcher>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useFindProdutoBySku<TData = Awaited<ReturnType<typeof findProdutoBySku>>, TError = ErrorType<void | void | void | void | void | void>>(
- sku: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof findProdutoBySku>>, TError, TData>>, request?: SecondParameter<typeof axiosFetcher>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Buscar um produto pelo SKU
- */
-
-export function useFindProdutoBySku<TData = Awaited<ReturnType<typeof findProdutoBySku>>, TError = ErrorType<void | void | void | void | void | void>>(
- sku: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof findProdutoBySku>>, TError, TData>>, request?: SecondParameter<typeof axiosFetcher>}
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getFindProdutoBySkuQueryOptions(sku,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  query.queryKey = queryOptions.queryKey ;
-
-  return query;
-}
-
-
-
-/**
- * @summary Atualizar um produto pelo SKU
- */
-export const updateProdutoBySku = (
-    sku: string,
-    updateProdutoDto: BodyType<UpdateProdutoDto>,
- options?: SecondParameter<typeof axiosFetcher>,) => {
-      
-      
-      return axiosFetcher<void>(
-      {url: `/api/produto/${sku}`, method: 'PUT',
-      headers: {'Content-Type': 'application/json', },
-      data: updateProdutoDto
-    },
-      options);
-    }
-  
-
-
-export const getUpdateProdutoBySkuMutationOptions = <TError = ErrorType<void | void | void | void | void | void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateProdutoBySku>>, TError,{sku: string;data: BodyType<UpdateProdutoDto>}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
-): UseMutationOptions<Awaited<ReturnType<typeof updateProdutoBySku>>, TError,{sku: string;data: BodyType<UpdateProdutoDto>}, TContext> => {
-
-const mutationKey = ['updateProdutoBySku'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateProdutoBySku>>, {sku: string;data: BodyType<UpdateProdutoDto>}> = (props) => {
-          const {sku,data} = props ?? {};
-
-          return  updateProdutoBySku(sku,data,requestOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type UpdateProdutoBySkuMutationResult = NonNullable<Awaited<ReturnType<typeof updateProdutoBySku>>>
-    export type UpdateProdutoBySkuMutationBody = BodyType<UpdateProdutoDto>
-    export type UpdateProdutoBySkuMutationError = ErrorType<void | void | void | void | void | void>
-
-    /**
- * @summary Atualizar um produto pelo SKU
- */
-export const useUpdateProdutoBySku = <TError = ErrorType<void | void | void | void | void | void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateProdutoBySku>>, TError,{sku: string;data: BodyType<UpdateProdutoDto>}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof updateProdutoBySku>>,
-        TError,
-        {sku: string;data: BodyType<UpdateProdutoDto>},
-        TContext
-      > => {
-
-      const mutationOptions = getUpdateProdutoBySkuMutationOptions(options);
-
-      return useMutation(mutationOptions, queryClient);
-    }
-    /**
- * @summary Deletar um produto pelo SKU
- */
-export const deleteProdutoBySku = (
-    sku: string,
- options?: SecondParameter<typeof axiosFetcher>,) => {
-      
-      
-      return axiosFetcher<void>(
-      {url: `/api/produto/${sku}`, method: 'DELETE'
-    },
-      options);
-    }
-  
-
-
-export const getDeleteProdutoBySkuMutationOptions = <TError = ErrorType<void | void | void | void | void | void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteProdutoBySku>>, TError,{sku: string}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteProdutoBySku>>, TError,{sku: string}, TContext> => {
-
-const mutationKey = ['deleteProdutoBySku'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteProdutoBySku>>, {sku: string}> = (props) => {
-          const {sku} = props ?? {};
-
-          return  deleteProdutoBySku(sku,requestOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DeleteProdutoBySkuMutationResult = NonNullable<Awaited<ReturnType<typeof deleteProdutoBySku>>>
-    
-    export type DeleteProdutoBySkuMutationError = ErrorType<void | void | void | void | void | void>
-
-    /**
- * @summary Deletar um produto pelo SKU
- */
-export const useDeleteProdutoBySku = <TError = ErrorType<void | void | void | void | void | void>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteProdutoBySku>>, TError,{sku: string}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof deleteProdutoBySku>>,
-        TError,
-        {sku: string},
-        TContext
-      > => {
-
-      const mutationOptions = getDeleteProdutoBySkuMutationOptions(options);
-
-      return useMutation(mutationOptions, queryClient);
-    }
-    

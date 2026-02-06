@@ -9,94 +9,24 @@ import * as zod from 'zod';
 
 
 /**
- * @summary Criar um novo produto
- */
-export const createProdutoBody = zod.object({
-  "codDum": zod.string().describe('Código DUM do produto'),
-  "codEan": zod.string().describe('Código EAN do produto'),
-  "sku": zod.string().describe('SKU do produto'),
-  "descricao": zod.string().describe('Descrição do produto'),
-  "shelf": zod.number().describe('Shelf do produto'),
-  "pesoLiquidoCaixa": zod.string().describe('Peso líquido da caixa'),
-  "pesoLiquidoUnidade": zod.string().describe('Peso líquido da unidade'),
-  "unPorCaixa": zod.number().describe('Unidades por caixa'),
-  "caixaPorPallet": zod.number().describe('Caixas por pallet'),
-  "segmento": zod.string().describe('Segmento do produto'),
-  "empresa": zod.string().describe('Empresa do produto'),
-  "criadoEm": zod.string().describe('Criado em')
-})
-
-/**
  * @summary Buscar todos os produtos
  */
+export const findAllProdutosResponseShelfMax = 9007199254740991;export const findAllProdutosResponseUnPorCaixaMax = 9007199254740991;export const findAllProdutosResponseCaixaPorPalletMax = 9007199254740991;
+
 export const findAllProdutosResponseItem = zod.object({
-  "codDum": zod.string().describe('Código DUM do produto'),
-  "codEan": zod.string().describe('Código EAN do produto'),
-  "sku": zod.string().describe('SKU do produto'),
-  "descricao": zod.string().describe('Descrição do produto'),
-  "shelf": zod.number().describe('Shelf do produto'),
-  "pesoLiquidoCaixa": zod.string().describe('Peso líquido da caixa'),
-  "pesoLiquidoUnidade": zod.string().describe('Peso líquido da unidade'),
-  "unPorCaixa": zod.number().describe('Unidades por caixa'),
-  "caixaPorPallet": zod.number().describe('Caixas por pallet'),
-  "segmento": zod.string().describe('Segmento do produto'),
-  "empresa": zod.string().describe('Empresa do produto'),
-  "criadoEm": zod.string().describe('Criado em')
+  "codDum": zod.string().optional(),
+  "codEan": zod.string().optional(),
+  "sku": zod.string().min(1),
+  "descricao": zod.string().min(1),
+  "shelf": zod.number().max(findAllProdutosResponseShelfMax),
+  "tipoPeso": zod.enum(['PVAR', 'PPAR']),
+  "pesoLiquidoCaixa": zod.string().min(1),
+  "pesoLiquidoUnidade": zod.string().min(1),
+  "unPorCaixa": zod.number().max(findAllProdutosResponseUnPorCaixaMax),
+  "caixaPorPallet": zod.number().max(findAllProdutosResponseCaixaPorPalletMax),
+  "segmento": zod.enum(['SECO', 'REFR']),
+  "empresa": zod.enum(['ITB', 'LDB', 'DPA']),
+  "criadoEm": zod.string().optional()
 })
 export const findAllProdutosResponse = zod.array(findAllProdutosResponseItem)
-
-/**
- * @summary Criar múltiplos produtos
- */
-export const createManyProdutosBodyItem = zod.object({
-  "codDum": zod.string().describe('Código DUM do produto'),
-  "codEan": zod.string().describe('Código EAN do produto'),
-  "sku": zod.string().describe('SKU do produto'),
-  "descricao": zod.string().describe('Descrição do produto'),
-  "shelf": zod.number().describe('Shelf do produto'),
-  "pesoLiquidoCaixa": zod.string().describe('Peso líquido da caixa'),
-  "pesoLiquidoUnidade": zod.string().describe('Peso líquido da unidade'),
-  "unPorCaixa": zod.number().describe('Unidades por caixa'),
-  "caixaPorPallet": zod.number().describe('Caixas por pallet'),
-  "segmento": zod.string().describe('Segmento do produto'),
-  "empresa": zod.string().describe('Empresa do produto'),
-  "criadoEm": zod.string().describe('Criado em')
-})
-export const createManyProdutosBody = zod.array(createManyProdutosBodyItem)
-
-/**
- * @summary Buscar um produto pelo SKU
- */
-export const findProdutoBySkuParams = zod.object({
-  "sku": zod.string()
-})
-
-/**
- * @summary Atualizar um produto pelo SKU
- */
-export const updateProdutoBySkuParams = zod.object({
-  "sku": zod.string()
-})
-
-export const updateProdutoBySkuBody = zod.object({
-  "codDum": zod.string().optional().describe('Código DUM do produto'),
-  "codEan": zod.string().optional().describe('Código EAN do produto'),
-  "sku": zod.string().optional().describe('SKU do produto'),
-  "descricao": zod.string().optional().describe('Descrição do produto'),
-  "shelf": zod.number().optional().describe('Shelf do produto'),
-  "pesoLiquidoCaixa": zod.string().optional().describe('Peso líquido da caixa'),
-  "pesoLiquidoUnidade": zod.string().optional().describe('Peso líquido da unidade'),
-  "unPorCaixa": zod.number().optional().describe('Unidades por caixa'),
-  "caixaPorPallet": zod.number().optional().describe('Caixas por pallet'),
-  "segmento": zod.string().optional().describe('Segmento do produto'),
-  "empresa": zod.string().optional().describe('Empresa do produto'),
-  "criadoEm": zod.string().optional().describe('Criado em')
-})
-
-/**
- * @summary Deletar um produto pelo SKU
- */
-export const deleteProdutoBySkuParams = zod.object({
-  "sku": zod.string()
-})
 

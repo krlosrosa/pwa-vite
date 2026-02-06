@@ -298,13 +298,6 @@ export const addCheckListDevolucaoMobileBody = zod.object({
   "anomalias": zod.string().optional()
 })
 
-export const addCheckListDevolucaoMobileResponse = zod.object({
-  "uploadUrls": zod.object({
-  "bauAberto": zod.string(),
-  "bauFechado": zod.string()
-})
-})
-
 /**
  * @summary Iniciar conferência
  */
@@ -364,4 +357,23 @@ export const getPresignedUrlAnomaliaDevolucaoParams = zod.object({
 })
 
 export const getPresignedUrlAnomaliaDevolucaoResponse = zod.string()
+
+/**
+ * @summary Gerar URL pré-assinada para upload de fim de devolução
+ */
+export const getPresignedUrlFimDevolucaoParams = zod.object({
+  "filename": zod.string()
+})
+
+export const getPresignedUrlFimDevolucaoResponse = zod.string()
+
+/**
+ * @summary Adicionar imagem de fim de devolução
+ */
+export const addImagemFimDevolucaoParams = zod.object({
+  "demandaId": zod.string()
+})
+
+export const addImagemFimDevolucaoBodyItem = zod.string()
+export const addImagemFimDevolucaoBody = zod.array(addImagemFimDevolucaoBodyItem)
 

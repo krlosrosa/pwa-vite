@@ -1,3 +1,5 @@
+import { mapProdutoDtoToCreate } from '@/_services/api/mapper/produtoMapper';
+import type { CreateProdutoDto } from '@/_services/api/model';
 import { findAllProdutos } from '@/_services/api/service/produto/produto';
 import { useProdutoStore } from '@/_shared/stores/produtoStore';
 
@@ -22,8 +24,9 @@ export function useSyncProdutos() {
       if (produtosData && Array.isArray(produtosData)) {
         console.log(`[useSyncProdutos] Fetched ${produtosData.length} products from API`);
         
-        // Update the store (this will persist to IndexedDB automatically)
-        setProdutos(produtosData);
+        // Map ProdutoDto[] to CreateProdutoDto[] (store expects required fields)
+        const storeItems: CreateProdutoDto[] = produtosData.map(mapProdutoDtoToCreate);
+        setProdutos(storeItems);
         
         console.log('[useSyncProdutos] Products sync completed successfully');
         return { success: true, count: produtosData.length };

@@ -27,7 +27,6 @@ import type {
 import type {
   AddAnomaliaDto,
   AddCheckListDto,
-  AddCheckListResponseDto,
   AddConferenciaCegaDto,
   AddNotaDto,
   DemandDto,
@@ -862,7 +861,7 @@ export const addCheckListDevolucaoMobile = (
 ) => {
       
       
-      return axiosFetcher<AddCheckListResponseDto>(
+      return axiosFetcher<void>(
       {url: `/api/devolucao/add-check-list/${demandaId}`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: addCheckListDto, signal
@@ -1229,6 +1228,133 @@ export const useGetPresignedUrlAnomaliaDevolucao = <TError = ErrorType<void>,
       > => {
 
       const mutationOptions = getGetPresignedUrlAnomaliaDevolucaoMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
+ * @summary Gerar URL pré-assinada para upload de fim de devolução
+ */
+export const getPresignedUrlFimDevolucao = (
+    filename: string,
+ options?: SecondParameter<typeof axiosFetcher>,signal?: AbortSignal
+) => {
+      
+      
+      return axiosFetcher<string>(
+      {url: `/api/devolucao/presigned-url-devolucao/fim-devolucao/${filename}`, method: 'POST', signal
+    },
+      options);
+    }
+  
+
+
+export const getGetPresignedUrlFimDevolucaoMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof getPresignedUrlFimDevolucao>>, TError,{filename: string}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
+): UseMutationOptions<Awaited<ReturnType<typeof getPresignedUrlFimDevolucao>>, TError,{filename: string}, TContext> => {
+
+const mutationKey = ['getPresignedUrlFimDevolucao'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof getPresignedUrlFimDevolucao>>, {filename: string}> = (props) => {
+          const {filename} = props ?? {};
+
+          return  getPresignedUrlFimDevolucao(filename,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type GetPresignedUrlFimDevolucaoMutationResult = NonNullable<Awaited<ReturnType<typeof getPresignedUrlFimDevolucao>>>
+    
+    export type GetPresignedUrlFimDevolucaoMutationError = ErrorType<void>
+
+    /**
+ * @summary Gerar URL pré-assinada para upload de fim de devolução
+ */
+export const useGetPresignedUrlFimDevolucao = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof getPresignedUrlFimDevolucao>>, TError,{filename: string}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof getPresignedUrlFimDevolucao>>,
+        TError,
+        {filename: string},
+        TContext
+      > => {
+
+      const mutationOptions = getGetPresignedUrlFimDevolucaoMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
+ * @summary Adicionar imagem de fim de devolução
+ */
+export const addImagemFimDevolucao = (
+    demandaId: string,
+    addImagemFimDevolucaoBody: BodyType<string[]>,
+ options?: SecondParameter<typeof axiosFetcher>,signal?: AbortSignal
+) => {
+      
+      
+      return axiosFetcher<void>(
+      {url: `/api/devolucao/add-imagem-fim/${demandaId}`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: addImagemFimDevolucaoBody, signal
+    },
+      options);
+    }
+  
+
+
+export const getAddImagemFimDevolucaoMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addImagemFimDevolucao>>, TError,{demandaId: string;data: BodyType<string[]>}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
+): UseMutationOptions<Awaited<ReturnType<typeof addImagemFimDevolucao>>, TError,{demandaId: string;data: BodyType<string[]>}, TContext> => {
+
+const mutationKey = ['addImagemFimDevolucao'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof addImagemFimDevolucao>>, {demandaId: string;data: BodyType<string[]>}> = (props) => {
+          const {demandaId,data} = props ?? {};
+
+          return  addImagemFimDevolucao(demandaId,data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AddImagemFimDevolucaoMutationResult = NonNullable<Awaited<ReturnType<typeof addImagemFimDevolucao>>>
+    export type AddImagemFimDevolucaoMutationBody = BodyType<string[]>
+    export type AddImagemFimDevolucaoMutationError = ErrorType<void>
+
+    /**
+ * @summary Adicionar imagem de fim de devolução
+ */
+export const useAddImagemFimDevolucao = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addImagemFimDevolucao>>, TError,{demandaId: string;data: BodyType<string[]>}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof addImagemFimDevolucao>>,
+        TError,
+        {demandaId: string;data: BodyType<string[]>},
+        TContext
+      > => {
+
+      const mutationOptions = getAddImagemFimDevolucaoMutationOptions(options);
 
       return useMutation(mutationOptions, queryClient);
     }
