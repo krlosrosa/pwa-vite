@@ -123,11 +123,9 @@ export function useAnomalyRegistration() {
       case 'fotos':
         return true;
       case 'observacao':
-        // Ao replicar: exige pelo menos uma foto e quantidade física (caixa ou unidade)
+        // Ao replicar: exige pelo menos uma foto (a quantidade vem da conferência de cada item)
         if (formData.replicateToAllItems) {
-          const hasQty = (formData.quantityBox.trim() !== '' && !isNaN(Number(formData.quantityBox)) && Number(formData.quantityBox) >= 0) ||
-            (formData.quantityUnit.trim() !== '' && !isNaN(Number(formData.quantityUnit)) && Number(formData.quantityUnit) >= 0);
-          return formData.photos.length >= 1 && hasQty;
+          return formData.photos.length >= 1;
         }
         return true;
       default:
@@ -172,15 +170,7 @@ export function useAnomalyRegistration() {
         const hasPhotos = currentPhotos.length > 0;
 
         if (formData.replicateToAllItems && hasPhotos) {
-          // Replicar para todos: mesma descrição, todas as fotos e quantidade física (o que o usuário informou)
-          const quantityBox = formData.quantityBox.trim() !== '' && !isNaN(Number(formData.quantityBox))
-            ? Number(formData.quantityBox)
-            : undefined;
-          const quantityUnit = formData.quantityUnit.trim() !== '' && !isNaN(Number(formData.quantityUnit))
-            ? Number(formData.quantityUnit)
-            : 0;
-          const quantity = quantityUnit;
-
+          // Replicar para todos: mesma descrição e fotos; quantidade = o que foi conferido em cada item
           const allConferences = await loadConferencesByDemand(demandaId);
           const checkedConferences = allConferences.filter(c => c.isChecked);
           if (checkedConferences.length === 0) {
@@ -190,12 +180,18 @@ export function useAnomalyRegistration() {
           const replicatedGroupId = crypto.randomUUID();
           const photosToReplicate = [...currentPhotos];
           for (const conf of checkedConferences) {
+            const quantityUnit = typeof conf.checkedQuantity === 'number' && !isNaN(conf.checkedQuantity)
+              ? conf.checkedQuantity
+              : 0;
+            const quantityBox = conf.boxQuantity != null && !isNaN(Number(conf.boxQuantity))
+              ? Number(conf.boxQuantity)
+              : undefined;
             await saveAnomaly({
               itemId: conf.itemId,
               demandaId,
               sku: conf.sku,
               lote: conf.lote ?? '',
-              quantity,
+              quantity: quantityUnit,
               quantityBox,
               quantityUnit,
               description,
