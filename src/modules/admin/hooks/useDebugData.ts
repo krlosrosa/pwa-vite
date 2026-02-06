@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { db, type ChecklistRecord, type ConferenceRecord, type AnomalyRecord, type DemandRecord } from '@/_shared/db/database';
+import { db, type ChecklistRecord, type ConferenceRecord, type AnomalyRecord, type DemandRecord, type FinishPhotoRecord } from '@/_shared/db/database';
 import { useProdutoStore } from '@/_shared/stores/produtoStore';
 import { useChecklistStore } from '@/_shared/stores/checklistStore';
 import { useDemandStore } from '@/_shared/stores/demandStore';
@@ -13,6 +13,7 @@ export function useDebugData() {
   const [conferences, setConferences] = useState<ConferenceRecord[]>([]);
   const [anomalies, setAnomalies] = useState<AnomalyRecord[]>([]);
   const [demands, setDemands] = useState<DemandRecord[]>([]);
+  const [finishPhotos, setFinishPhotos] = useState<FinishPhotoRecord[]>([]);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   const { getAllProdutos } = useProdutoStore();
@@ -36,17 +37,20 @@ export function useDebugData() {
   useEffect(() => {
     // Load initial data
     const loadData = async () => {
-      const [checklistsData, conferencesData, anomaliesData, demandsData] = await Promise.all([
-        db.checklists.toArray(),
-        db.conferences.toArray(),
-        db.anomalies.toArray(),
-        db.demands.toArray(),
-      ]);
+      const [checklistsData, conferencesData, anomaliesData, demandsData, finishPhotosData] =
+        await Promise.all([
+          db.checklists.toArray(),
+          db.conferences.toArray(),
+          db.anomalies.toArray(),
+          db.demands.toArray(),
+          db.finishPhotos.toArray(),
+        ]);
 
       setDemands(demandsData);
       setChecklists(checklistsData);
       setConferences(conferencesData);
       setAnomalies(anomaliesData);
+      setFinishPhotos(finishPhotosData);
     };
 
     loadData();
@@ -91,6 +95,11 @@ export function useDebugData() {
     setDemands((prev) => prev.filter((d) => d.id !== id));
   }, []);
 
+  const deleteFinishPhoto = useCallback(async (id: number) => {
+    await db.finishPhotos.delete(id);
+    setFinishPhotos((prev) => prev.filter((f) => f.id !== id));
+  }, []);
+
   /**
    * Clear all local data (except produtos - they are preserved)
    */
@@ -105,6 +114,7 @@ export function useDebugData() {
       db.conferences.clear(),
       db.anomalies.clear(),
       db.demands.clear(),
+      db.finishPhotos.clear(),
     ]);
 
     // Clear Zustand stores (except produtos)
@@ -117,6 +127,7 @@ export function useDebugData() {
     setConferences([]);
     setAnomalies([]);
     setDemands([]);
+    setFinishPhotos([]);
   }, []);
 
   /**
@@ -155,10 +166,19 @@ export function useDebugData() {
       }
     });
 
-    // Debug log
+    // Calculate size from finish photos
+    finishPhotos.forEach((record) => {
+      if (record.photos && Array.isArray(record.photos)) {
+        record.photos.forEach((photo) => {
+          if (photo && typeof photo === 'string') {
+            totalBytes += photo.length;
+          }
+        });
+      }
+    });
 
     return totalBytes;
-  }, [checklists, anomalies]);
+  }, [checklists, anomalies, finishPhotos]);
 
   /**
    * Format bytes to human readable format
@@ -180,6 +200,7 @@ export function useDebugData() {
       conferences: await db.conferences.toArray(),
       anomalies: await db.anomalies.toArray(),
       demands: await db.demands.toArray(),
+      finishPhotos: await db.finishPhotos.toArray(),
       produtos: produtos,
       timestamp: new Date().toISOString(),
     };
@@ -196,6 +217,7 @@ export function useDebugData() {
     conferences,
     anomalies,
     demands,
+    finishPhotos,
     produtos,
     isOnline,
     imagesTotalSize,
@@ -204,6 +226,7 @@ export function useDebugData() {
     deleteConference,
     deleteAnomaly,
     deleteDemand,
+    deleteFinishPhoto,
     clearAllData,
     exportDatabase,
   };

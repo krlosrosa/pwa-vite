@@ -1,4 +1,4 @@
-import { Database, Package, AlertTriangle, FileText, ClipboardList } from 'lucide-react';
+import { Database, Package, AlertTriangle, FileText, ClipboardList, Camera } from 'lucide-react';
 import { PageContainer } from '@/_shared/components/layout/PageContainer';
 import { PageHeader } from '@/_shared/components/layout/PageHeader';
 import { Card, CardContent } from '@/_shared/components/ui/card';
@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/_shared/components/u
 import { useDebugData } from '../hooks/useDebugData';
 import { DebugTable } from '../components/DebugTable';
 import { DangerZone } from '../components/DangerZone';
-import type { ChecklistRecord, ConferenceRecord, AnomalyRecord, DemandRecord } from '@/_shared/db/database';
+import type { ChecklistRecord, ConferenceRecord, AnomalyRecord, DemandRecord, FinishPhotoRecord } from '@/_shared/db/database';
 
 /**
  * Debug/Diagnostic page for monitoring local data (Dexie) and state (Zustand)
@@ -18,6 +18,7 @@ export default function DebugPage() {
     conferences,
     anomalies,
     demands,
+    finishPhotos,
     produtos,
     isOnline,
     imagesTotalSize,
@@ -26,6 +27,7 @@ export default function DebugPage() {
     deleteConference,
     deleteAnomaly,
     deleteDemand,
+    deleteFinishPhoto,
     clearAllData,
     exportDatabase,
   } = useDebugData();
@@ -46,7 +48,7 @@ export default function DebugPage() {
               <div>
                 <h3 className="text-sm font-semibold text-foreground">Tamanho Total das Imagens</h3>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Tamanho total de todas as imagens armazenadas (checklists e anomalias)
+                  Tamanho total de todas as imagens (checklists, anomalias e fotos de término)
                 </p>
               </div>
               <div className="text-right">
@@ -68,7 +70,7 @@ export default function DebugPage() {
         />
         <Tabs defaultValue="checklists" className="w-full">
           <div className="overflow-x-auto -mx-2 sm:mx-0 px-2 sm:px-0">
-            <TabsList className="inline-flex w-auto min-w-full sm:grid sm:grid-cols-5 h-auto">
+            <TabsList className="inline-flex w-auto min-w-full sm:grid sm:grid-cols-6 h-auto">
               <TabsTrigger value="checklists" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2 whitespace-nowrap">
                 <FileText className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
                 <span className="hidden sm:inline">Checklists</span>
@@ -92,6 +94,12 @@ export default function DebugPage() {
                 <span className="hidden sm:inline">Demandas</span>
                 <span className="sm:hidden">Dem</span>
                 <span className="ml-1">({demands.length})</span>
+              </TabsTrigger>
+              <TabsTrigger value="finishPhotos" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2 whitespace-nowrap">
+                <Camera className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                <span className="hidden sm:inline">Fotos término</span>
+                <span className="sm:hidden">Fotos</span>
+                <span className="ml-1">({finishPhotos.length})</span>
               </TabsTrigger>
               <TabsTrigger value="products" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2 whitespace-nowrap">
                 <Package className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
@@ -242,6 +250,40 @@ export default function DebugPage() {
                     },
                   ]}
                   onDelete={deleteDemand}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="finishPhotos" className="mt-3 sm:mt-4">
+            <Card>
+              <CardContent className="p-2 sm:p-4">
+                <DebugTable<FinishPhotoRecord>
+                  data={finishPhotos}
+                  columns={[
+                    { key: 'id', label: 'ID' },
+                    { key: 'demandaId', label: 'Demanda ID' },
+                    {
+                      key: 'photos',
+                      label: 'Fotos',
+                      render: (value) => {
+                        const photos = value as string[];
+                        return photos ? `${photos.length} foto(s)` : '0';
+                      },
+                    },
+                    {
+                      key: 'synced',
+                      label: 'Sincronizado',
+                      render: (value) => (value ? 'Sim' : 'Não'),
+                    },
+                    {
+                      key: 'updatedAt',
+                      label: 'Atualizado',
+                      render: (value) =>
+                        value ? new Date(value as number).toLocaleString() : '-',
+                    },
+                  ]}
+                  onDelete={deleteFinishPhoto}
                 />
               </CardContent>
             </Card>

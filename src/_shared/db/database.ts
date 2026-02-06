@@ -65,21 +65,40 @@ export interface DemandRecord {
   synced: boolean;
 }
 
+/** Fotos de término da demanda (finalização), sincronizadas via addImagemFimDevolucao */
+export interface FinishPhotoRecord {
+  id?: number;
+  demandaId: string;
+  photos: string[]; // base64
+  createdAt: number;
+  updatedAt: number;
+  synced: boolean;
+}
+
 // Classe do banco de dados Dexie
 export class AppDatabase extends Dexie {
   checklists!: Table<ChecklistRecord, number>;
   conferences!: Table<ConferenceRecord, number>;
   anomalies!: Table<AnomalyRecord, number>;
   demands!: Table<DemandRecord, number>;
+  finishPhotos!: Table<FinishPhotoRecord, number>;
 
   constructor() {
     super('DevolucaoPWA');
-    
+
     this.version(1).stores({
       checklists: '++id, demandaId, synced, createdAt',
       conferences: '++id, itemId, demandaId, synced, createdAt',
       anomalies: '++id, itemId, demandaId, synced, createdAt',
       demands: '++id, demandaId, synced, createdAt',
+    });
+
+    this.version(2).stores({
+      checklists: '++id, demandaId, synced, createdAt',
+      conferences: '++id, itemId, demandaId, synced, createdAt',
+      anomalies: '++id, itemId, demandaId, synced, createdAt',
+      demands: '++id, demandaId, synced, createdAt',
+      finishPhotos: '++id, demandaId, synced, createdAt',
     });
   }
 }

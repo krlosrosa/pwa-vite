@@ -1,11 +1,12 @@
-import { useState } from 'react';
-import { CheckCircle, AlertTriangle, Edit, Package } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { CheckCircle, AlertTriangle, Edit, Package, Camera, X } from 'lucide-react';
 import { useParams, useNavigate } from '@tanstack/react-router';
 import { PageContainer } from '@/_shared/components/layout/PageContainer';
 import { PageHeader } from '@/_shared/components/layout/PageHeader';
 import { BottomActionBar } from '@/_shared/components/layout/BottomActionBar';
 import { Button } from '@/_shared/components/ui/button';
 import { Card, CardContent, CardTitle } from '@/_shared/components/ui/card';
+import { Label } from '@/_shared/components/ui/label';
 import {
   Dialog,
   DialogContent,
@@ -16,6 +17,7 @@ import {
 } from '@/_shared/components/ui/dialog';
 import { useDemandFinish } from '../hooks/useDemandFinish';
 import { useDemandStore } from '@/_shared/stores/demandStore';
+import { useFinishPhotoStore } from '@/_shared/stores/finishPhotoStore';
 import { useSyncProdutos } from '@/hooks/logic/use-sync-produtos';
 import { useSyncAnomalia } from '@/hooks/logic/use-sync-anomalia';
 import { useSyncConferencia } from '@/hooks/logic/use-sync-conferencia';
@@ -29,6 +31,7 @@ export default function DemandFinishPage() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [isFinalizing, setIsFinalizing] = useState(false);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const [finishPhotos, setFinishPhotos] = useState<string[]>([]);
 
   const {
     summary,
@@ -39,6 +42,13 @@ export default function DemandFinishPage() {
   } = useDemandFinish(demandaId);
 
   const { markDemandAsFinalized } = useDemandStore();
+  const { saveFinishPhotos, getFinishPhotosByDemand } = useFinishPhotoStore();
+
+  // Carregar fotos de término já salvas ao abrir/voltar na página
+  useEffect(() => {
+    if (!demandaId) return;
+    getFinishPhotosByDemand(demandaId).then(setFinishPhotos);
+  }, [demandaId, getFinishPhotosByDemand]);
   const { syncProdutos } = useSyncProdutos();
   const { syncAnomalias } = useSyncAnomalia();
   const { syncConferences } = useSyncConferencia();
@@ -47,25 +57,55 @@ export default function DemandFinishPage() {
 
   const uncheckedItemsCount = summary.unchecked;
 
+  const handleFinishPhotoAdd = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor, selecione uma imagem válida');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('A imagem deve ter no máximo 5MB');
+      return;
+    }
+    try {
+      const { convertFileToBase64 } = await import('@/_shared/lib/convertBase64');
+      const base64 = await convertFileToBase64(file);
+      const newPhotos = [...finishPhotos, base64];
+      setFinishPhotos(newPhotos);
+      await saveFinishPhotos(demandaId, newPhotos);
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao processar a imagem. Tente novamente.');
+    }
+    e.target.value = '';
+  };
+
+  const handleFinishPhotoRemove = async (index: number) => {
+    const newPhotos = finishPhotos.filter((_, i) => i !== index);
+    setFinishPhotos(newPhotos);
+    await saveFinishPhotos(demandaId, newPhotos);
+  };
+
   /**
    * Handles the finalization confirmation
    */
   const handleConfirmFinalization = async () => {
     setIsFinalizing(true);
     try {
-      // Mark demand as finalized in the store
+      if (finishPhotos.length > 0) {
+        await saveFinishPhotos(demandaId, finishPhotos);
+      }
       await markDemandAsFinalized(demandaId);
-      
-      // Sync all data: produtos, anomalies, conferences, checklists, and demands
-    await syncProdutos();
+
+      await syncProdutos();
       await syncAnomalias();
       await syncConferences();
       await syncCheckLists();
-      await syncDemands();
-      
+      await syncDemands(); // inclui sync das fotos de término
+
       console.log('[DemandFinishPage] Demand finalized and synchronization completed successfully');
-      
-      // Close dialog and navigate to demands list
+
       setShowConfirmDialog(false);
       navigate({ to: '/demands' });
     } catch (error) {
@@ -190,6 +230,50 @@ export default function DemandFinishPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* Fotos de término (opcional) */}
+        <Card className="p-0">
+          <CardContent className="p-4 space-y-4">
+            <div>
+              <Label>Fotos de término (opcional)</Label>
+              <p className="text-sm text-muted-foreground mt-1">
+                Adicione fotos para documentar o encerramento da demanda. Serão sincronizadas ao finalizar.
+              </p>
+              <div className="mt-4 grid grid-cols-3 gap-3">
+                {finishPhotos.map((photo, index) => (
+                  <div key={index} className="relative aspect-square">
+                    <img
+                      src={photo}
+                      alt={`Foto término ${index + 1}`}
+                      className="w-full h-full object-cover rounded-lg border"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full shadow-md"
+                      onClick={() => handleFinishPhotoRemove(index)}
+                      aria-label="Remover foto"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                <label className="aspect-square rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:bg-muted transition-colors">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="sr-only"
+                    onChange={handleFinishPhotoAdd}
+                  />
+                  <Camera className="h-8 w-8 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground mt-1">Adicionar</span>
+                </label>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Success State */}
         {showSuccessCard && (
