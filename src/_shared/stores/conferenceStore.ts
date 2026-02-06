@@ -60,6 +60,7 @@ interface ConferenceState {
     quantityUnit?: number; // Quantidade em unidades (opcional)
     description: string;
     photos: string[];
+    replicatedGroupId?: string; // Agrupa anomalias replicadas (upload único no sync)
   }) => Promise<number>;
   
   loadAnomaliesByItem: (itemId: string) => Promise<AnomalyRecord[]>;

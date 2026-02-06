@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from '@tanstack/react-router';
 import { useConferenceStore } from '@/_shared/stores/conferenceStore';
 import type { ConferenceRecord } from '@/_shared/db/database';
@@ -22,8 +22,10 @@ export interface AnomalyFormData {
   causaAvaria: string | null;
   photos: string[];
   observacao: string;
-  quantityBox: string; // Quantidade em caixas (string para input)
-  quantityUnit: string; // Quantidade em unidades (string para input)
+  quantityBox: string;
+  quantityUnit: string;
+  /** Replicar esta anomalia para todos os itens conferidos da demanda (usa todas as fotos e quantidade física informada) */
+  replicateToAllItems?: boolean;
 }
 
 /**
@@ -44,13 +46,16 @@ export function useAnomalyRegistration() {
     photos: [],
     observacao: '',
     quantityBox: '',
+    replicateToAllItems: false,
     quantityUnit: '',
   });
 
   const [conference, setConference] = useState<ConferenceRecord | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const formDataRef = useRef(formData);
+  formDataRef.current = formData;
 
-  const { loadConference, saveAnomaly } = useConferenceStore();
+  const { loadConference, loadConferencesByDemand, saveAnomaly } = useConferenceStore();
 
   // Carregar dados da conferência ao montar o componente
   useEffect(() => {
@@ -116,9 +121,15 @@ export function useAnomalyRegistration() {
       case 'causa':
         return formData.causaAvaria !== null;
       case 'fotos':
-        return true; // Opcional
+        return true;
       case 'observacao':
-        return true; // Opcional
+        // Ao replicar: exige pelo menos uma foto e quantidade física (caixa ou unidade)
+        if (formData.replicateToAllItems) {
+          const hasQty = (formData.quantityBox.trim() !== '' && !isNaN(Number(formData.quantityBox)) && Number(formData.quantityBox) >= 0) ||
+            (formData.quantityUnit.trim() !== '' && !isNaN(Number(formData.quantityUnit)) && Number(formData.quantityUnit) >= 0);
+          return formData.photos.length >= 1 && hasQty;
+        }
+        return true;
       default:
         return false;
     }
@@ -134,63 +145,88 @@ export function useAnomalyRegistration() {
     }
 
     if (isLastStep) {
-      // Salvar anomalia no store
       if (!conference || !itemId || !demandaId) {
         alert('Erro: Dados da conferência não encontrados.');
         return;
       }
 
       try {
-        // Construir descrição a partir dos campos do formulário
         const descricaoParts: string[] = [];
-
         if (formData.natureza) {
           const naturezaLabel = naturezaAnomaliaOptions.find(o => o.value === formData.natureza)?.label || formData.natureza;
           descricaoParts.push(`Natureza: ${naturezaLabel}`);
         }
-
         if (formData.tipoNaoConformidade) {
           const tipoLabel = tipoNaoConformidadeOptions.find(o => o.value === formData.tipoNaoConformidade)?.label || formData.tipoNaoConformidade;
           descricaoParts.push(`Tipo: ${tipoLabel}`);
         }
-
         if (formData.causaAvaria) {
           descricaoParts.push(`Causa: ${formData.causaAvaria}`);
         }
-
         if (formData.observacao.trim()) {
           descricaoParts.push(`Observação: ${formData.observacao.trim()}`);
         }
-
         const description = descricaoParts.join(' | ') || 'Anomalia registrada';
-        
-        // Parse quantities (at least one must be filled, validated in canProceed)
-        const quantityBox = formData.quantityBox.trim() !== '' && !isNaN(Number(formData.quantityBox)) && Number(formData.quantityBox) > 0
-          ? Number(formData.quantityBox)
-          : undefined;
-        const quantityUnit = formData.quantityUnit.trim() !== '' && !isNaN(Number(formData.quantityUnit)) && Number(formData.quantityUnit) > 0
-          ? Number(formData.quantityUnit)
-          : undefined;
-        
-        // Use quantityUnit as primary quantity for backward compatibility
-        // If only boxQuantity is provided, use 0 for units (backend will use quantityBox)
-        const quantity = quantityUnit ?? 0;
+        // Usar ref para garantir as fotos mais recentes do formulário (evita closure desatualizada)
+        const currentPhotos = formDataRef.current.photos ?? [];
+        const hasPhotos = currentPhotos.length > 0;
 
-        await saveAnomaly({
-          itemId,
-          demandaId,
-          sku: conference.sku,
-          lote: conference.lote, // Lote copiado automaticamente da conferência
-          quantity, // Mantido para compatibilidade
-          quantityBox,
-          quantityUnit,
-          description,
-          photos: formData.photos,
-        });
+        if (formData.replicateToAllItems && hasPhotos) {
+          // Replicar para todos: mesma descrição, todas as fotos e quantidade física (o que o usuário informou)
+          const quantityBox = formData.quantityBox.trim() !== '' && !isNaN(Number(formData.quantityBox))
+            ? Number(formData.quantityBox)
+            : undefined;
+          const quantityUnit = formData.quantityUnit.trim() !== '' && !isNaN(Number(formData.quantityUnit))
+            ? Number(formData.quantityUnit)
+            : 0;
+          const quantity = quantityUnit;
 
-        alert('Anomalia registrada com sucesso!');
+          const allConferences = await loadConferencesByDemand(demandaId);
+          const checkedConferences = allConferences.filter(c => c.isChecked);
+          if (checkedConferences.length === 0) {
+            alert('Nenhum item conferido nesta demanda para replicar.');
+            return;
+          }
+          const replicatedGroupId = crypto.randomUUID();
+          const photosToReplicate = [...currentPhotos];
+          for (const conf of checkedConferences) {
+            await saveAnomaly({
+              itemId: conf.itemId,
+              demandaId,
+              sku: conf.sku,
+              lote: conf.lote ?? '',
+              quantity,
+              quantityBox,
+              quantityUnit,
+              description,
+              photos: photosToReplicate,
+              replicatedGroupId,
+            });
+          }
+          alert(`Anomalia replicada com sucesso para ${checkedConferences.length} item(ns).`);
+        } else {
+          // Registro único (item atual)
+          const quantityBox = formData.quantityBox.trim() !== '' && !isNaN(Number(formData.quantityBox)) && Number(formData.quantityBox) > 0
+            ? Number(formData.quantityBox)
+            : undefined;
+          const quantityUnit = formData.quantityUnit.trim() !== '' && !isNaN(Number(formData.quantityUnit)) && Number(formData.quantityUnit) > 0
+            ? Number(formData.quantityUnit)
+            : undefined;
+          const quantity = quantityUnit ?? 0;
+          await saveAnomaly({
+            itemId,
+            demandaId,
+            sku: conference.sku,
+            lote: conference.lote,
+            quantity,
+            quantityBox,
+            quantityUnit,
+            description,
+            photos: formData.photos,
+          });
+          alert('Anomalia registrada com sucesso!');
+        }
 
-        // Navegar de volta para a página de conferência do item
         navigate({
           to: '/demands/$id/items/$itemId/conference',
           params: { id: demandaId, itemId: itemId }

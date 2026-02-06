@@ -43,6 +43,8 @@ export interface AnomalyRecord {
   quantityUnit?: number; // Quantidade em unidades (opcional, pode usar quantity)
   description: string;
   photos: string[];
+  /** Agrupa anomalias replicadas para upload único da imagem no sync */
+  replicatedGroupId?: string;
   createdAt: number;
   updatedAt: number;
   synced: boolean;

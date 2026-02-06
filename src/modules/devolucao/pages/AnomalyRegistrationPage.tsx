@@ -95,6 +95,9 @@ export default function AnomalyRegistrationPage() {
           onQuantityUnitChange={(value: string) =>
             setFormData((prev) => ({ ...prev, quantityUnit: value }))
           }
+          onReplicateToAllItemsChange={(checked) =>
+            setFormData((prev) => ({ ...prev, replicateToAllItems: checked }))
+          }
         />
       </div>
 
