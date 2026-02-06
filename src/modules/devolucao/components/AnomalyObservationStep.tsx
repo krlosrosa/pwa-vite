@@ -28,7 +28,7 @@ export function AnomalyObservationStep({
   const replicate = formData.replicateToAllItems ?? false;
   const hasBoxQuantity = formData.quantityBox.trim() !== '' && !isNaN(Number(formData.quantityBox)) && Number(formData.quantityBox) >= 0;
   const hasUnitQuantity = formData.quantityUnit.trim() !== '' && !isNaN(Number(formData.quantityUnit)) && Number(formData.quantityUnit) >= 0;
-  const isValidQuantity = hasBoxQuantity || hasUnitQuantity;
+  const isValidQuantity = replicate || hasBoxQuantity || hasUnitQuantity;
 
   return (
     <div className="space-y-4">
@@ -41,7 +41,7 @@ export function AnomalyObservationStep({
             </Label>
             <p className="text-xs text-muted-foreground">
               {replicate
-                ? 'Ao replicar, será usada a quantidade física que você informar abaixo em todos os itens.'
+                ? 'Ao replicar, será usada a quantidade conferida de cada item (o que foi conferido na tela de conferência).'
                 : 'Preencha pelo menos um dos campos (caixa ou unidade)'}
             </p>
           </div>
@@ -108,7 +108,7 @@ export function AnomalyObservationStep({
                   Replicar esta anomalia para todos os itens da demanda
                 </Label>
                 <p className="text-xs text-muted-foreground">
-                  Serão usadas todas as fotos, a mesma descrição e a mesma quantidade física (informada acima) em todos os itens.
+                  Serão usadas todas as fotos e a mesma descrição em todos os itens. A quantidade será a conferida de cada item.
                 </p>
               </div>
             </div>
