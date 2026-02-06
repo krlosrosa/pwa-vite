@@ -22,6 +22,7 @@ export function AnomalyStepContent({
   onObservationChange,
   onQuantityBoxChange,
   onQuantityUnitChange,
+  onReplicateToAllItemsChange,
 }: {
   step: AnomalyStep;
   sku: string;
@@ -35,6 +36,7 @@ export function AnomalyStepContent({
   onObservationChange: (value: string) => void;
   onQuantityBoxChange?: (value: string) => void;
   onQuantityUnitChange?: (value: string) => void;
+  onReplicateToAllItemsChange?: (checked: boolean) => void;
 }) {
   switch (step) {
     case 'natureza':
@@ -77,6 +79,7 @@ export function AnomalyStepContent({
           onObservationChange={onObservationChange}
           onQuantityBoxChange={onQuantityBoxChange ?? (() => {})}
           onQuantityUnitChange={onQuantityUnitChange ?? (() => {})}
+          onReplicateToAllItemsChange={onReplicateToAllItemsChange}
         />
       );
   }

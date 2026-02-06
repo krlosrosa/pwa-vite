@@ -1,8 +1,9 @@
-import { Check, Package, Box } from 'lucide-react';
+import { Check, Package, Box, Copy } from 'lucide-react';
 import { Card, CardContent } from '@/_shared/components/ui/card';
 import { Label } from '@/_shared/components/ui/label';
 import { Input } from '@/_shared/components/ui/input';
 import { Textarea } from '@/_shared/components/ui/textarea';
+import { Checkbox } from '@/_shared/components/ui/checkbox';
 import { naturezaAnomaliaOptions, tipoNaoConformidadeOptions } from '../consts/causas-check-list';
 import type { AnomalyFormData } from '../hooks/useAnomalyRegistration';
 
@@ -15,15 +16,18 @@ export function AnomalyObservationStep({
   onObservationChange,
   onQuantityBoxChange,
   onQuantityUnitChange,
+  onReplicateToAllItemsChange,
 }: {
   sku: string;
   formData: AnomalyFormData;
   onObservationChange: (value: string) => void;
   onQuantityBoxChange: (value: string) => void;
   onQuantityUnitChange: (value: string) => void;
+  onReplicateToAllItemsChange?: (checked: boolean) => void;
 }) {
-  const hasBoxQuantity = formData.quantityBox.trim() !== '' && !isNaN(Number(formData.quantityBox)) && Number(formData.quantityBox) > 0;
-  const hasUnitQuantity = formData.quantityUnit.trim() !== '' && !isNaN(Number(formData.quantityUnit)) && Number(formData.quantityUnit) > 0;
+  const replicate = formData.replicateToAllItems ?? false;
+  const hasBoxQuantity = formData.quantityBox.trim() !== '' && !isNaN(Number(formData.quantityBox)) && Number(formData.quantityBox) >= 0;
+  const hasUnitQuantity = formData.quantityUnit.trim() !== '' && !isNaN(Number(formData.quantityUnit)) && Number(formData.quantityUnit) >= 0;
   const isValidQuantity = hasBoxQuantity || hasUnitQuantity;
 
   return (
@@ -33,10 +37,12 @@ export function AnomalyObservationStep({
         <CardContent className="p-4 space-y-4">
           <div className="space-y-2">
             <Label className="text-sm font-medium">
-              Quantidade da Anomalia <span className="text-destructive">*</span>
+              Quantidade da Anomalia {!replicate && <span className="text-destructive">*</span>}
             </Label>
             <p className="text-xs text-muted-foreground">
-              Preencha pelo menos um dos campos (caixa ou unidade)
+              {replicate
+                ? 'Ao replicar, será usada a quantidade física que você informar abaixo em todos os itens.'
+                : 'Preencha pelo menos um dos campos (caixa ou unidade)'}
             </p>
           </div>
           
@@ -80,11 +86,35 @@ export function AnomalyObservationStep({
 
           {!isValidQuantity && (
             <p className="text-xs text-destructive">
-              Preencha pelo menos um dos campos de quantidade
+              Preencha pelo menos um dos campos de quantidade (caixa ou unidade)
             </p>
           )}
         </CardContent>
       </Card>
+
+      {/* Replicar para todos */}
+      {onReplicateToAllItemsChange && (
+        <Card className="p-0">
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              <Checkbox
+                id="replicateToAll"
+                checked={replicate}
+                onCheckedChange={(v) => onReplicateToAllItemsChange(v === true)}
+              />
+              <div className="space-y-1">
+                <Label htmlFor="replicateToAll" className="flex items-center gap-2 cursor-pointer font-medium">
+                  <Copy className="h-4 w-4" />
+                  Replicar esta anomalia para todos os itens da demanda
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Serão usadas todas as fotos, a mesma descrição e a mesma quantidade física (informada acima) em todos os itens.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Observation Field */}
       <Card className="p-0">
