@@ -26,6 +26,7 @@ export interface ConferenceRecord {
   boxQuantity?: number; // quantidadeCaixas conferida
   lote?: string; // lote (obrigatório na UI, opcional no schema para compatibilidade)
   isChecked: boolean;
+  isRedelivered?: boolean;
   isExtra?: boolean; // Indica se é um item extra (não estava na demanda contábil)
   createdAt: number;
   updatedAt: number;

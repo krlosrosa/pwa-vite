@@ -84,6 +84,7 @@ export function useDemandList(centerId?: string): UseDemandListReturn {
       await Promise.all(
         demands.map(async (demand) => {
           const demandaId = demand.id.toString();
+          console.log(demands)
           
           // Load checklist
           const checklist = await loadChecklist(demandaId);

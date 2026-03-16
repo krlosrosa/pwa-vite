@@ -6,17 +6,11 @@
  * OpenAPI spec version: 1.0
  */
 
-export interface AddAnomaliaDto {
-  demandaId: number;
-  uuid: string;
-  sku: string;
-  descricao: string;
-  lote: string;
-  tipo: string;
-  natureza: string;
-  causa: string;
-  tratado?: boolean;
-  quantidadeCaixas: number;
-  quantidadeUnidades: number;
-  imagens: string[];
-}
+export type GetItensDemandaDtoTipo = typeof GetItensDemandaDtoTipo[keyof typeof GetItensDemandaDtoTipo];
+
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const GetItensDemandaDtoTipo = {
+  CONTABIL: 'CONTABIL',
+  FISICO: 'FISICO',
+} as const;

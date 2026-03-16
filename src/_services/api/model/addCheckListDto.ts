@@ -7,8 +7,6 @@
  */
 
 export interface AddCheckListDto {
-  fotoBauAberto: string;
-  fotoBauFechado: string;
   /** @minLength 1 */
   demandaId: string;
   /** @pattern ^-?\d+(\.\d+)?$ */

@@ -5,18 +5,6 @@
  * Documentação da API responsável por: gestão de produtividade, montagem e impressão de mapas de separação, sistema de devolução de estoque e contagem de inventário.
  * OpenAPI spec version: 1.0
  */
+import type { DemandCompactDtoChecklistAnyOf } from './demandCompactDtoChecklistAnyOf';
 
-export interface AddAnomaliaDto {
-  demandaId: number;
-  uuid: string;
-  sku: string;
-  descricao: string;
-  lote: string;
-  tipo: string;
-  natureza: string;
-  causa: string;
-  tratado?: boolean;
-  quantidadeCaixas: number;
-  quantidadeUnidades: number;
-  imagens: string[];
-}
+export type DemandCompactDtoChecklist = DemandCompactDtoChecklistAnyOf | null;

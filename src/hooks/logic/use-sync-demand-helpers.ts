@@ -20,8 +20,6 @@ export function mapConferenceToApiDto(conference: ConferenceRecord): AddConferen
 export function mapChecklistToApiDto(checklist: ChecklistRecord, demandaId: string): AddCheckListDto {
   return {
     demandaId,
-    fotoBauAberto: checklist.fotoBauAberto,
-    fotoBauFechado: checklist.fotoBauFechado,
     temperaturaBau: checklist.temperaturaBau,
     temperaturaProduto: checklist.temperaturaProduto,
     anomalias: checklist.anomalias,

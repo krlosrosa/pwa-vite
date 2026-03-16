@@ -5,18 +5,18 @@
  * Documentação da API responsável por: gestão de produtividade, montagem e impressão de mapas de separação, sistema de devolução de estoque e contagem de inventário.
  * OpenAPI spec version: 1.0
  */
+import * as zod from 'zod';
 
-export interface AddAnomaliaDto {
-  demandaId: number;
-  uuid: string;
-  sku: string;
-  descricao: string;
-  lote: string;
-  tipo: string;
-  natureza: string;
-  causa: string;
-  tratado?: boolean;
-  quantidadeCaixas: number;
-  quantidadeUnidades: number;
-  imagens: string[];
-}
+
+/**
+ * @summary Login
+ */
+export const loginBodyPasswordMin = 6;
+
+export const loginBody = zod.object({
+  "id": zod.string(),
+  "password": zod.string().min(loginBodyPasswordMin)
+})
+
+export const loginResponse = zod.string()
+
