@@ -28,8 +28,13 @@ import type {
   AddAnomaliaDto,
   AddCheckListDto,
   AddConferenciaCegaDto,
+  AddImagemAnomaliaBodyDto,
+  AddImangesCheckListBodyDto,
   AddNotaDto,
+  DemandCompactDto,
   DemandDto,
+  GetAnomaliasByDemandaDto,
+  GetItensDemandaDto,
   ItensContabilDto,
   ResponseRavexDto,
   ResultadoDemandaDto
@@ -1355,6 +1360,793 @@ export const useAddImagemFimDevolucao = <TError = ErrorType<void>,
       > => {
 
       const mutationOptions = getAddImagemFimDevolucaoMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
+ * @summary Listar itens da demanda
+ */
+export const getItensByDemandaIdDevolucaoMobile = (
+    demandaId: string,
+ options?: SecondParameter<typeof axiosFetcher>,signal?: AbortSignal
+) => {
+      
+      
+      return axiosFetcher<GetItensDemandaDto[]>(
+      {url: `/api/devolucao/get-itens-by-demanda-id/${demandaId}`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getGetItensByDemandaIdDevolucaoMobileQueryKey = (demandaId?: string,) => {
+    return [
+    `/api/devolucao/get-itens-by-demanda-id/${demandaId}`
+    ] as const;
+    }
+
+    
+export const getGetItensByDemandaIdDevolucaoMobileQueryOptions = <TData = Awaited<ReturnType<typeof getItensByDemandaIdDevolucaoMobile>>, TError = ErrorType<void>>(demandaId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getItensByDemandaIdDevolucaoMobile>>, TError, TData>>, request?: SecondParameter<typeof axiosFetcher>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetItensByDemandaIdDevolucaoMobileQueryKey(demandaId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getItensByDemandaIdDevolucaoMobile>>> = ({ signal }) => getItensByDemandaIdDevolucaoMobile(demandaId, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(demandaId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getItensByDemandaIdDevolucaoMobile>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetItensByDemandaIdDevolucaoMobileQueryResult = NonNullable<Awaited<ReturnType<typeof getItensByDemandaIdDevolucaoMobile>>>
+export type GetItensByDemandaIdDevolucaoMobileQueryError = ErrorType<void>
+
+
+export function useGetItensByDemandaIdDevolucaoMobile<TData = Awaited<ReturnType<typeof getItensByDemandaIdDevolucaoMobile>>, TError = ErrorType<void>>(
+ demandaId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getItensByDemandaIdDevolucaoMobile>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getItensByDemandaIdDevolucaoMobile>>,
+          TError,
+          Awaited<ReturnType<typeof getItensByDemandaIdDevolucaoMobile>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof axiosFetcher>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetItensByDemandaIdDevolucaoMobile<TData = Awaited<ReturnType<typeof getItensByDemandaIdDevolucaoMobile>>, TError = ErrorType<void>>(
+ demandaId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getItensByDemandaIdDevolucaoMobile>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getItensByDemandaIdDevolucaoMobile>>,
+          TError,
+          Awaited<ReturnType<typeof getItensByDemandaIdDevolucaoMobile>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof axiosFetcher>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetItensByDemandaIdDevolucaoMobile<TData = Awaited<ReturnType<typeof getItensByDemandaIdDevolucaoMobile>>, TError = ErrorType<void>>(
+ demandaId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getItensByDemandaIdDevolucaoMobile>>, TError, TData>>, request?: SecondParameter<typeof axiosFetcher>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Listar itens da demanda
+ */
+
+export function useGetItensByDemandaIdDevolucaoMobile<TData = Awaited<ReturnType<typeof getItensByDemandaIdDevolucaoMobile>>, TError = ErrorType<void>>(
+ demandaId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getItensByDemandaIdDevolucaoMobile>>, TError, TData>>, request?: SecondParameter<typeof axiosFetcher>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetItensByDemandaIdDevolucaoMobileQueryOptions(demandaId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+/**
+ * @summary Remover imagens do bucket
+ */
+export const removeImangesBucket = (
+    bucket: string,
+    removeImangesBucketBody: BodyType<string[]>,
+ options?: SecondParameter<typeof axiosFetcher>,signal?: AbortSignal
+) => {
+      
+      
+      return axiosFetcher<void>(
+      {url: `/api/devolucao/remove-imagens-bucket/${bucket}`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: removeImangesBucketBody, signal
+    },
+      options);
+    }
+  
+
+
+export const getRemoveImangesBucketMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof removeImangesBucket>>, TError,{bucket: string;data: BodyType<string[]>}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
+): UseMutationOptions<Awaited<ReturnType<typeof removeImangesBucket>>, TError,{bucket: string;data: BodyType<string[]>}, TContext> => {
+
+const mutationKey = ['removeImangesBucket'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof removeImangesBucket>>, {bucket: string;data: BodyType<string[]>}> = (props) => {
+          const {bucket,data} = props ?? {};
+
+          return  removeImangesBucket(bucket,data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RemoveImangesBucketMutationResult = NonNullable<Awaited<ReturnType<typeof removeImangesBucket>>>
+    export type RemoveImangesBucketMutationBody = BodyType<string[]>
+    export type RemoveImangesBucketMutationError = ErrorType<void>
+
+    /**
+ * @summary Remover imagens do bucket
+ */
+export const useRemoveImangesBucket = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof removeImangesBucket>>, TError,{bucket: string;data: BodyType<string[]>}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof removeImangesBucket>>,
+        TError,
+        {bucket: string;data: BodyType<string[]>},
+        TContext
+      > => {
+
+      const mutationOptions = getRemoveImangesBucketMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
+ * @summary Buscar anomalias por demanda
+ */
+export const getAnomaliasByDemanda = (
+    demandaId: string,
+ options?: SecondParameter<typeof axiosFetcher>,signal?: AbortSignal
+) => {
+      
+      
+      return axiosFetcher<GetAnomaliasByDemandaDto[]>(
+      {url: `/api/devolucao/get-anomalias-by-demanda/${demandaId}`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getGetAnomaliasByDemandaQueryKey = (demandaId?: string,) => {
+    return [
+    `/api/devolucao/get-anomalias-by-demanda/${demandaId}`
+    ] as const;
+    }
+
+    
+export const getGetAnomaliasByDemandaQueryOptions = <TData = Awaited<ReturnType<typeof getAnomaliasByDemanda>>, TError = ErrorType<void>>(demandaId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnomaliasByDemanda>>, TError, TData>>, request?: SecondParameter<typeof axiosFetcher>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAnomaliasByDemandaQueryKey(demandaId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAnomaliasByDemanda>>> = ({ signal }) => getAnomaliasByDemanda(demandaId, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(demandaId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAnomaliasByDemanda>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetAnomaliasByDemandaQueryResult = NonNullable<Awaited<ReturnType<typeof getAnomaliasByDemanda>>>
+export type GetAnomaliasByDemandaQueryError = ErrorType<void>
+
+
+export function useGetAnomaliasByDemanda<TData = Awaited<ReturnType<typeof getAnomaliasByDemanda>>, TError = ErrorType<void>>(
+ demandaId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnomaliasByDemanda>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAnomaliasByDemanda>>,
+          TError,
+          Awaited<ReturnType<typeof getAnomaliasByDemanda>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof axiosFetcher>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAnomaliasByDemanda<TData = Awaited<ReturnType<typeof getAnomaliasByDemanda>>, TError = ErrorType<void>>(
+ demandaId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnomaliasByDemanda>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAnomaliasByDemanda>>,
+          TError,
+          Awaited<ReturnType<typeof getAnomaliasByDemanda>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof axiosFetcher>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAnomaliasByDemanda<TData = Awaited<ReturnType<typeof getAnomaliasByDemanda>>, TError = ErrorType<void>>(
+ demandaId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnomaliasByDemanda>>, TError, TData>>, request?: SecondParameter<typeof axiosFetcher>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Buscar anomalias por demanda
+ */
+
+export function useGetAnomaliasByDemanda<TData = Awaited<ReturnType<typeof getAnomaliasByDemanda>>, TError = ErrorType<void>>(
+ demandaId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAnomaliasByDemanda>>, TError, TData>>, request?: SecondParameter<typeof axiosFetcher>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetAnomaliasByDemandaQueryOptions(demandaId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+/**
+ * @summary Deletar anomalia de devolução
+ */
+export const deleteAnomaliaDevolucao = (
+    anomaliaId: string,
+ options?: SecondParameter<typeof axiosFetcher>,signal?: AbortSignal
+) => {
+      
+      
+      return axiosFetcher<void>(
+      {url: `/api/devolucao/delete-anomalia-devolucao/${anomaliaId}`, method: 'POST', signal
+    },
+      options);
+    }
+  
+
+
+export const getDeleteAnomaliaDevolucaoMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAnomaliaDevolucao>>, TError,{anomaliaId: string}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteAnomaliaDevolucao>>, TError,{anomaliaId: string}, TContext> => {
+
+const mutationKey = ['deleteAnomaliaDevolucao'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAnomaliaDevolucao>>, {anomaliaId: string}> = (props) => {
+          const {anomaliaId} = props ?? {};
+
+          return  deleteAnomaliaDevolucao(anomaliaId,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteAnomaliaDevolucaoMutationResult = NonNullable<Awaited<ReturnType<typeof deleteAnomaliaDevolucao>>>
+    
+    export type DeleteAnomaliaDevolucaoMutationError = ErrorType<void>
+
+    /**
+ * @summary Deletar anomalia de devolução
+ */
+export const useDeleteAnomaliaDevolucao = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAnomaliaDevolucao>>, TError,{anomaliaId: string}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteAnomaliaDevolucao>>,
+        TError,
+        {anomaliaId: string},
+        TContext
+      > => {
+
+      const mutationOptions = getDeleteAnomaliaDevolucaoMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
+ * @summary Iniciar conferência
+ */
+export const addContagemCegaIndividual = (
+    demandaId: string,
+    addConferenciaCegaDto: BodyType<AddConferenciaCegaDto>,
+ options?: SecondParameter<typeof axiosFetcher>,signal?: AbortSignal
+) => {
+      
+      
+      return axiosFetcher<void>(
+      {url: `/api/devolucao/add-contagem-cega-individual/${demandaId}`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: addConferenciaCegaDto, signal
+    },
+      options);
+    }
+  
+
+
+export const getAddContagemCegaIndividualMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addContagemCegaIndividual>>, TError,{demandaId: string;data: BodyType<AddConferenciaCegaDto>}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
+): UseMutationOptions<Awaited<ReturnType<typeof addContagemCegaIndividual>>, TError,{demandaId: string;data: BodyType<AddConferenciaCegaDto>}, TContext> => {
+
+const mutationKey = ['addContagemCegaIndividual'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof addContagemCegaIndividual>>, {demandaId: string;data: BodyType<AddConferenciaCegaDto>}> = (props) => {
+          const {demandaId,data} = props ?? {};
+
+          return  addContagemCegaIndividual(demandaId,data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AddContagemCegaIndividualMutationResult = NonNullable<Awaited<ReturnType<typeof addContagemCegaIndividual>>>
+    export type AddContagemCegaIndividualMutationBody = BodyType<AddConferenciaCegaDto>
+    export type AddContagemCegaIndividualMutationError = ErrorType<void>
+
+    /**
+ * @summary Iniciar conferência
+ */
+export const useAddContagemCegaIndividual = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addContagemCegaIndividual>>, TError,{demandaId: string;data: BodyType<AddConferenciaCegaDto>}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof addContagemCegaIndividual>>,
+        TError,
+        {demandaId: string;data: BodyType<AddConferenciaCegaDto>},
+        TContext
+      > => {
+
+      const mutationOptions = getAddContagemCegaIndividualMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
+ * @summary Deletar contagem cega
+ */
+export const deleteContagemCega = (
+    uuid: string,
+ options?: SecondParameter<typeof axiosFetcher>,signal?: AbortSignal
+) => {
+      
+      
+      return axiosFetcher<void>(
+      {url: `/api/devolucao/delete-contagem-cega/${uuid}`, method: 'POST', signal
+    },
+      options);
+    }
+  
+
+
+export const getDeleteContagemCegaMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteContagemCega>>, TError,{uuid: string}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteContagemCega>>, TError,{uuid: string}, TContext> => {
+
+const mutationKey = ['deleteContagemCega'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteContagemCega>>, {uuid: string}> = (props) => {
+          const {uuid} = props ?? {};
+
+          return  deleteContagemCega(uuid,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteContagemCegaMutationResult = NonNullable<Awaited<ReturnType<typeof deleteContagemCega>>>
+    
+    export type DeleteContagemCegaMutationError = ErrorType<void>
+
+    /**
+ * @summary Deletar contagem cega
+ */
+export const useDeleteContagemCega = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteContagemCega>>, TError,{uuid: string}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteContagemCega>>,
+        TError,
+        {uuid: string},
+        TContext
+      > => {
+
+      const mutationOptions = getDeleteContagemCegaMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
+ * @summary Atualizar contagem cega
+ */
+export const updateContagemCega = (
+    uuid: string,
+    addConferenciaCegaDto: BodyType<AddConferenciaCegaDto>,
+ options?: SecondParameter<typeof axiosFetcher>,signal?: AbortSignal
+) => {
+      
+      
+      return axiosFetcher<void>(
+      {url: `/api/devolucao/update-contagem-cega/${uuid}`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: addConferenciaCegaDto, signal
+    },
+      options);
+    }
+  
+
+
+export const getUpdateContagemCegaMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateContagemCega>>, TError,{uuid: string;data: BodyType<AddConferenciaCegaDto>}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateContagemCega>>, TError,{uuid: string;data: BodyType<AddConferenciaCegaDto>}, TContext> => {
+
+const mutationKey = ['updateContagemCega'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateContagemCega>>, {uuid: string;data: BodyType<AddConferenciaCegaDto>}> = (props) => {
+          const {uuid,data} = props ?? {};
+
+          return  updateContagemCega(uuid,data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateContagemCegaMutationResult = NonNullable<Awaited<ReturnType<typeof updateContagemCega>>>
+    export type UpdateContagemCegaMutationBody = BodyType<AddConferenciaCegaDto>
+    export type UpdateContagemCegaMutationError = ErrorType<void>
+
+    /**
+ * @summary Atualizar contagem cega
+ */
+export const useUpdateContagemCega = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateContagemCega>>, TError,{uuid: string;data: BodyType<AddConferenciaCegaDto>}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateContagemCega>>,
+        TError,
+        {uuid: string;data: BodyType<AddConferenciaCegaDto>},
+        TContext
+      > => {
+
+      const mutationOptions = getUpdateContagemCegaMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
+ * @summary Adicionar imagens de check list
+ */
+export const addImangesCheckList = (
+    demandaId: string,
+    processo: string,
+    addImangesCheckListBodyDto: BodyType<AddImangesCheckListBodyDto>,
+ options?: SecondParameter<typeof axiosFetcher>,signal?: AbortSignal
+) => {
+      
+      
+      return axiosFetcher<void>(
+      {url: `/api/devolucao/add-imanges-check-list/${demandaId}/${processo}`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: addImangesCheckListBodyDto, signal
+    },
+      options);
+    }
+  
+
+
+export const getAddImangesCheckListMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addImangesCheckList>>, TError,{demandaId: string;processo: string;data: BodyType<AddImangesCheckListBodyDto>}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
+): UseMutationOptions<Awaited<ReturnType<typeof addImangesCheckList>>, TError,{demandaId: string;processo: string;data: BodyType<AddImangesCheckListBodyDto>}, TContext> => {
+
+const mutationKey = ['addImangesCheckList'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof addImangesCheckList>>, {demandaId: string;processo: string;data: BodyType<AddImangesCheckListBodyDto>}> = (props) => {
+          const {demandaId,processo,data} = props ?? {};
+
+          return  addImangesCheckList(demandaId,processo,data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AddImangesCheckListMutationResult = NonNullable<Awaited<ReturnType<typeof addImangesCheckList>>>
+    export type AddImangesCheckListMutationBody = BodyType<AddImangesCheckListBodyDto>
+    export type AddImangesCheckListMutationError = ErrorType<void>
+
+    /**
+ * @summary Adicionar imagens de check list
+ */
+export const useAddImangesCheckList = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addImangesCheckList>>, TError,{demandaId: string;processo: string;data: BodyType<AddImangesCheckListBodyDto>}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof addImangesCheckList>>,
+        TError,
+        {demandaId: string;processo: string;data: BodyType<AddImangesCheckListBodyDto>},
+        TContext
+      > => {
+
+      const mutationOptions = getAddImangesCheckListMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
+ * @summary Adicionar imagem de anomalia
+ */
+export const addImagemAnomalia = (
+    demandaId: string,
+    addImagemAnomaliaBodyDto: BodyType<AddImagemAnomaliaBodyDto>,
+ options?: SecondParameter<typeof axiosFetcher>,signal?: AbortSignal
+) => {
+      
+      
+      return axiosFetcher<void>(
+      {url: `/api/devolucao/add-imagem-anomalia/${demandaId}`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: addImagemAnomaliaBodyDto, signal
+    },
+      options);
+    }
+  
+
+
+export const getAddImagemAnomaliaMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addImagemAnomalia>>, TError,{demandaId: string;data: BodyType<AddImagemAnomaliaBodyDto>}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
+): UseMutationOptions<Awaited<ReturnType<typeof addImagemAnomalia>>, TError,{demandaId: string;data: BodyType<AddImagemAnomaliaBodyDto>}, TContext> => {
+
+const mutationKey = ['addImagemAnomalia'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof addImagemAnomalia>>, {demandaId: string;data: BodyType<AddImagemAnomaliaBodyDto>}> = (props) => {
+          const {demandaId,data} = props ?? {};
+
+          return  addImagemAnomalia(demandaId,data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AddImagemAnomaliaMutationResult = NonNullable<Awaited<ReturnType<typeof addImagemAnomalia>>>
+    export type AddImagemAnomaliaMutationBody = BodyType<AddImagemAnomaliaBodyDto>
+    export type AddImagemAnomaliaMutationError = ErrorType<void>
+
+    /**
+ * @summary Adicionar imagem de anomalia
+ */
+export const useAddImagemAnomalia = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addImagemAnomalia>>, TError,{demandaId: string;data: BodyType<AddImagemAnomaliaBodyDto>}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof addImagemAnomalia>>,
+        TError,
+        {demandaId: string;data: BodyType<AddImagemAnomaliaBodyDto>},
+        TContext
+      > => {
+
+      const mutationOptions = getAddImagemAnomaliaMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
+ * @summary Buscar dados compactos de uma demanda de devolução
+ */
+export const getByDemandaCompact = (
+    id: string,
+ options?: SecondParameter<typeof axiosFetcher>,signal?: AbortSignal
+) => {
+      
+      
+      return axiosFetcher<DemandCompactDto>(
+      {url: `/api/devolucao/compact/${id}`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getGetByDemandaCompactQueryKey = (id?: string,) => {
+    return [
+    `/api/devolucao/compact/${id}`
+    ] as const;
+    }
+
+    
+export const getGetByDemandaCompactQueryOptions = <TData = Awaited<ReturnType<typeof getByDemandaCompact>>, TError = ErrorType<unknown>>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getByDemandaCompact>>, TError, TData>>, request?: SecondParameter<typeof axiosFetcher>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetByDemandaCompactQueryKey(id);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getByDemandaCompact>>> = ({ signal }) => getByDemandaCompact(id, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getByDemandaCompact>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetByDemandaCompactQueryResult = NonNullable<Awaited<ReturnType<typeof getByDemandaCompact>>>
+export type GetByDemandaCompactQueryError = ErrorType<unknown>
+
+
+export function useGetByDemandaCompact<TData = Awaited<ReturnType<typeof getByDemandaCompact>>, TError = ErrorType<unknown>>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getByDemandaCompact>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getByDemandaCompact>>,
+          TError,
+          Awaited<ReturnType<typeof getByDemandaCompact>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof axiosFetcher>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetByDemandaCompact<TData = Awaited<ReturnType<typeof getByDemandaCompact>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getByDemandaCompact>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getByDemandaCompact>>,
+          TError,
+          Awaited<ReturnType<typeof getByDemandaCompact>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof axiosFetcher>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetByDemandaCompact<TData = Awaited<ReturnType<typeof getByDemandaCompact>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getByDemandaCompact>>, TError, TData>>, request?: SecondParameter<typeof axiosFetcher>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Buscar dados compactos de uma demanda de devolução
+ */
+
+export function useGetByDemandaCompact<TData = Awaited<ReturnType<typeof getByDemandaCompact>>, TError = ErrorType<unknown>>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getByDemandaCompact>>, TError, TData>>, request?: SecondParameter<typeof axiosFetcher>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetByDemandaCompactQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+/**
+ * @summary Sincroniza e finaliza os dados de uma demanda de devolução
+ */
+export const finalizarDemandaCompacta = (
+    id: string,
+    demandCompactDto: BodyType<DemandCompactDto>,
+ options?: SecondParameter<typeof axiosFetcher>,) => {
+      
+      
+      return axiosFetcher<void>(
+      {url: `/api/devolucao/compact/${id}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: demandCompactDto
+    },
+      options);
+    }
+  
+
+
+export const getFinalizarDemandaCompactaMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof finalizarDemandaCompacta>>, TError,{id: string;data: BodyType<DemandCompactDto>}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
+): UseMutationOptions<Awaited<ReturnType<typeof finalizarDemandaCompacta>>, TError,{id: string;data: BodyType<DemandCompactDto>}, TContext> => {
+
+const mutationKey = ['finalizarDemandaCompacta'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof finalizarDemandaCompacta>>, {id: string;data: BodyType<DemandCompactDto>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  finalizarDemandaCompacta(id,data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type FinalizarDemandaCompactaMutationResult = NonNullable<Awaited<ReturnType<typeof finalizarDemandaCompacta>>>
+    export type FinalizarDemandaCompactaMutationBody = BodyType<DemandCompactDto>
+    export type FinalizarDemandaCompactaMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Sincroniza e finaliza os dados de uma demanda de devolução
+ */
+export const useFinalizarDemandaCompacta = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof finalizarDemandaCompacta>>, TError,{id: string;data: BodyType<DemandCompactDto>}, TContext>, request?: SecondParameter<typeof axiosFetcher>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof finalizarDemandaCompacta>>,
+        TError,
+        {id: string;data: BodyType<DemandCompactDto>},
+        TContext
+      > => {
+
+      const mutationOptions = getFinalizarDemandaCompactaMutationOptions(options);
 
       return useMutation(mutationOptions, queryClient);
     }

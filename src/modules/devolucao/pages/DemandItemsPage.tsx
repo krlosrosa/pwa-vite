@@ -1,4 +1,4 @@
-import { CheckCircle, Circle, Package, RefreshCw, WifiOff, Plus, AlertTriangle } from 'lucide-react';
+import { CheckCircle, Circle, Package, RefreshCw, WifiOff, Plus, AlertTriangle, Truck } from 'lucide-react';
 import { useParams } from '@tanstack/react-router';
 import { PageContainer } from '@/_shared/components/layout/PageContainer';
 import { PageHeader } from '@/_shared/components/layout/PageHeader';
@@ -26,6 +26,7 @@ export default function DemandItemsPage() {
     toggleFilter,
     toggleUncheckedFilter,
     toggleAnomaliesFilter,
+    toggleRedeliveryFilter,
     setSearchFilter,
     navigateToConference,
     navigateToAddExtra,
@@ -63,7 +64,6 @@ export default function DemandItemsPage() {
             value={filters.searchTerm}
             onChange={setSearchFilter}
           />
-
           <div className="space-y-3 p-3 bg-muted/30 rounded-lg border border-border">
             <div className="flex items-center justify-between">
               <Label htmlFor="show-checked" className="text-sm font-medium text-foreground flex items-center gap-2">
@@ -104,6 +104,20 @@ export default function DemandItemsPage() {
                 onCheckedChange={toggleAnomaliesFilter}
               />
             </div>
+
+            <div className="h-px bg-border" />
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="show-redelivery" className="text-sm font-medium text-foreground flex items-center gap-2">
+                <Truck className="h-4 w-4 text-muted-foreground" />
+                Mostrar apenas reentrega
+              </Label>
+              <Switch
+                id="show-redelivery"
+                checked={filters.showOnlyRedelivery}
+                onCheckedChange={toggleRedeliveryFilter}
+              />
+            </div>
           </div>
 
           {isLoadingApi && !hasLocalData && !isApiError ? (
@@ -127,6 +141,7 @@ export default function DemandItemsPage() {
               <EmptyState
                 icon={
                   filters.showOnlyAnomalies ? <AlertTriangle className="h-8 w-8" /> 
+                    : filters.showOnlyRedelivery ? <Truck className="h-8 w-8" />
                     : filters.showOnlyUnchecked ? <Circle className="h-8 w-8" /> 
                     : <Package className="h-8 w-8" />
                 }
@@ -135,6 +150,8 @@ export default function DemandItemsPage() {
                     ? 'Nenhum item encontrado' 
                     : filters.showOnlyAnomalies 
                     ? 'Nenhum item com anomalias' 
+                    : filters.showOnlyRedelivery
+                    ? 'Nenhum item de reentrega'
                     : filters.showOnlyUnchecked
                     ? 'Nenhum item não conferido'
                     : 'Nenhum item'
@@ -144,6 +161,8 @@ export default function DemandItemsPage() {
                     ? 'Tente buscar por outro termo.' 
                     : filters.showOnlyAnomalies
                     ? 'Não há itens com anomalias registradas nesta demanda.'
+                    : filters.showOnlyRedelivery
+                    ? 'Não há itens de reentrega nesta demanda.'
                     : filters.showOnlyUnchecked
                     ? 'Todos os itens desta demanda já foram conferidos.'
                     : 'Não há itens nesta demanda.'

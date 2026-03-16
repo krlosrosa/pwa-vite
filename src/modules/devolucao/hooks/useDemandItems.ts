@@ -20,6 +20,7 @@ export interface ItemData {
   lote?: string; // lote
   isChecked: boolean;
   hasDivergence: boolean;
+  isRedelivered?: boolean;
   hasAnomaly?: boolean; // Indica se o item tem anomalias registradas
   isExtra?: boolean; // Indica se é um item extra
 }
@@ -42,6 +43,7 @@ export interface FilterState {
   showOnlyChecked: boolean;
   showOnlyUnchecked: boolean;
   showOnlyAnomalies: boolean;
+  showOnlyRedelivery: boolean;
 }
 
 /**
@@ -70,6 +72,8 @@ export interface UseDemandItemsReturn {
   toggleUncheckedFilter: (showOnlyUnchecked: boolean) => void;
   /** Toggle filter for showing only items with anomalies */
   toggleAnomaliesFilter: (showOnlyAnomalies: boolean) => void;
+  /** Toggle filter for showing only reentrega (redelivery) items */
+  toggleRedeliveryFilter: (showOnlyRedelivery: boolean) => void;
   /** Update search filter */
   setSearchFilter: (searchTerm: string) => void;
   /** Navigate to item conference page */
@@ -94,6 +98,7 @@ function getStoredFilters(demandaId: string): FilterState {
         showOnlyChecked: !!parsed.showOnlyChecked,
         showOnlyUnchecked: !!parsed.showOnlyUnchecked,
         showOnlyAnomalies: !!parsed.showOnlyAnomalies,
+        showOnlyRedelivery: !!parsed.showOnlyRedelivery,
       };
     }
   } catch {
@@ -104,6 +109,7 @@ function getStoredFilters(demandaId: string): FilterState {
     showOnlyChecked: false,
     showOnlyUnchecked: false,
     showOnlyAnomalies: false,
+    showOnlyRedelivery: false,
   };
 }
 
@@ -132,6 +138,7 @@ const mapApiItemToConference = (apiItem: ItensContabilDto, demandaId: string) =>
     demandaId: demandaId.toString(),
     sku: apiItem.sku,
     description: apiItem.descricao,
+    isRedelivered: apiItem.tipoDevolucao === 'REENTREGA',
     expectedQuantity: apiItem.quantidadeUnidades,
     checkedQuantity: 0,
     expectedBoxQuantity: apiItem.quantidadeCaixas,
@@ -153,6 +160,7 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
   const [showOnlyChecked, setShowOnlyChecked] = useState(() => getStoredFilters(demandaId).showOnlyChecked);
   const [showOnlyUnchecked, setShowOnlyUnchecked] = useState(() => getStoredFilters(demandaId).showOnlyUnchecked);
   const [showOnlyAnomalies, setShowOnlyAnomalies] = useState(() => getStoredFilters(demandaId).showOnlyAnomalies);
+  const [showOnlyRedelivery, setShowOnlyRedelivery] = useState(() => getStoredFilters(demandaId).showOnlyRedelivery);
   const [conferences, setConferences] = useState<ConferenceRecord[]>([]);
   const [anomalies, setAnomalies] = useState<Map<string, boolean>>(new Map()); // Map<itemId, hasAnomaly>
   const [stats, setStats] = useState<ConferenceStats>({ 
@@ -170,6 +178,7 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
     setShowOnlyChecked(stored.showOnlyChecked);
     setShowOnlyUnchecked(stored.showOnlyUnchecked);
     setShowOnlyAnomalies(stored.showOnlyAnomalies);
+    setShowOnlyRedelivery(stored.showOnlyRedelivery);
   }, [demandaId]);
 
   // Persist filters whenever they change (so they survive navigation to conference and back)
@@ -179,8 +188,9 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
       showOnlyChecked,
       showOnlyUnchecked,
       showOnlyAnomalies,
+      showOnlyRedelivery,
     });
-  }, [demandaId, filter, showOnlyChecked, showOnlyUnchecked, showOnlyAnomalies]);
+  }, [demandaId, filter, showOnlyChecked, showOnlyUnchecked, showOnlyAnomalies, showOnlyRedelivery]);
 
   // Orval hook to fetch accounting items from API
   const { 
@@ -216,6 +226,7 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
     if (!demandaId) return;
     
     const storedConferences = await loadConferencesByDemand(demandaId);
+    console.log('[useDemandItems] Itens do banco (conferences):', storedConferences);
     setConferences(storedConferences);
     
     // Load anomalies for this demand
@@ -265,6 +276,8 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
       
       hydrationRef.current = true;
 
+      console.log('[useDemandItems] Itens da API (itens contábeis):', apiItems);
+
       try {
         // Use Dexie transaction for atomic operations
         await db.transaction('rw', db.conferences, async () => {
@@ -281,6 +294,7 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
             expectedBoxQuantity?: number;
             boxQuantity?: number;
             isChecked: boolean;
+            isRedelivered?: boolean;
           }> = [];
 
           for (const apiItem of apiItems) {
@@ -324,6 +338,7 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
   const items: ItemData[] = useMemo(() => {
     return conferences.map((conference) => {
       const isExtra = conference.isExtra ?? false;
+      const isRedelivered = conference.isRedelivered ?? false;
       const hasAnomaly = anomalies.get(conference.itemId) ?? false;
       
       // Extra items always show divergence badge
@@ -339,6 +354,7 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
           lote: conference.lote,
           isChecked: conference.isChecked,
           hasDivergence: true, // Extra items always have divergence
+          isRedelivered: isRedelivered, 
           hasAnomaly,
           isExtra,
         };
@@ -356,6 +372,7 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
           lote: conference.lote,
           isChecked: conference.isChecked,
           hasDivergence: false,
+          isRedelivered: isRedelivered, 
           hasAnomaly,
           isExtra,
         };
@@ -411,6 +428,11 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
       filtered = filtered.filter(item => item.hasAnomaly === true);
     }
 
+    // Filter by "apenas reentrega"
+    if (showOnlyRedelivery) {
+      filtered = filtered.filter(item => item.isRedelivered === true);
+    }
+
     // Filter by search (SKU or description)
     if (filter.trim()) {
       const searchTerm = filter.toLowerCase().trim();
@@ -425,7 +447,7 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
       if (a.isChecked === b.isChecked) return 0;
       return a.isChecked ? 1 : -1; // false (não conferido) antes de true (conferido)
     });
-  }, [items, filter, showOnlyChecked, showOnlyUnchecked, showOnlyAnomalies]);
+  }, [items, filter, showOnlyChecked, showOnlyUnchecked, showOnlyAnomalies, showOnlyRedelivery]);
 
   /**
    * Toggle filter for showing only checked items
@@ -446,6 +468,13 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
    */
   const toggleAnomaliesFilter = useCallback((checked: boolean) => {
     setShowOnlyAnomalies(checked);
+  }, []);
+
+  /**
+   * Toggle filter for showing only reentrega items
+   */
+  const toggleRedeliveryFilter = useCallback((checked: boolean) => {
+    setShowOnlyRedelivery(checked);
   }, []);
 
   /**
@@ -544,6 +573,7 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
       showOnlyChecked,
       showOnlyUnchecked,
       showOnlyAnomalies,
+      showOnlyRedelivery,
     },
     isLoadingApi,
     isApiError,
@@ -552,6 +582,7 @@ export function useDemandItems(demandaId: string): UseDemandItemsReturn {
     toggleFilter,
     toggleUncheckedFilter,
     toggleAnomaliesFilter,
+    toggleRedeliveryFilter,
     setSearchFilter,
     navigateToConference,
     navigateToAddExtra,

@@ -1,5 +1,6 @@
 import { Check, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardTitle } from '@/_shared/components/ui/card';
+import { Button } from '@/_shared/components/ui/button';
 import { Input } from '@/_shared/components/ui/input';
 import { Label } from '@/_shared/components/ui/label';
 import { cn } from '@/_shared/lib/utils';
@@ -14,25 +15,18 @@ export function ConferenceForm({
   boxQuantity,
   checkedQuantity,
   lote,
-  productValidationCode,
-  isExtraItem,
-  isValidProductCode,
   onBoxQuantityChange,
   onCheckedQuantityChange,
   onLoteChange,
-  onProductValidationCodeChange,
+  onQuickSetExpected,
 }: {
   conference: ConferenceRecord;
   boxQuantity: string;
   checkedQuantity: string;
   lote: string;
-  productValidationCode: string;
-  isExtraItem: boolean;
-  isValidProductCode: boolean;
   onBoxQuantityChange: (value: string) => void;
   onCheckedQuantityChange: (value: string) => void;
   onLoteChange: (value: string) => void;
-  onProductValidationCodeChange: (value: string) => void;
   onQuickSetExpected: () => void;
 }) {
   return (
@@ -43,58 +37,6 @@ export function ConferenceForm({
           Conferência
         </CardTitle>
         <div className="space-y-4">
-          {/* Validação do Produto (apenas para produtos não extras e não conferidos) */}
-          {!isExtraItem && !conference.isChecked && (
-            <div className="space-y-2">
-              <Label htmlFor="productValidationCode">
-                Validar Produto <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="productValidationCode"
-                type="text"
-                value={productValidationCode}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  onProductValidationCodeChange(value);
-                }}
-                onBlur={(e) => {
-                  // Trim on blur to remove extra spaces
-                  const trimmed = e.target.value.trim();
-                  if (trimmed !== productValidationCode) {
-                    onProductValidationCodeChange(trimmed);
-                  }
-                }}
-                placeholder="Digite o SKU, EAN ou DUM do produto"
-                className={cn(
-                  'text-lg font-semibold',
-                  productValidationCode && !isValidProductCode && 'border-destructive'
-                )}
-                autoComplete="off"
-                autoFocus={false}
-              />
-              {productValidationCode && !isValidProductCode && (
-                <p className="text-xs text-destructive">
-                  Código não confere. Verifique o SKU, EAN ou DUM do produto.
-                </p>
-              )}
-              {isValidProductCode && (
-                <p className="text-xs text-green-600 flex items-center gap-1">
-                  <Check className="h-3 w-3" />
-                  Produto validado com sucesso
-                </p>
-              )}
-            </div>
-          )}
-          
-          {/* Mensagem quando item já foi conferido */}
-          {!isExtraItem && conference.isChecked && (
-            <div className="space-y-2 p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-md">
-              <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
-                <Check className="h-4 w-4" />
-                <span className="text-sm font-medium">Item já conferido - Validação do produto não necessária</span>
-              </div>
-            </div>
-          )}
           {/* Quantidade de Caixas */}
           <div className="space-y-2">
             <Label htmlFor="boxQuantity">Quantidade de Caixas</Label>
@@ -114,6 +56,15 @@ export function ConferenceForm({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="checkedQuantity">Quantidade de Unidades</Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="text-xs h-7"
+                onClick={onQuickSetExpected}
+              >
+                Preencher com esperado ({conference.expectedQuantity} un)
+              </Button>
             </div>
             <Input
               id="checkedQuantity"

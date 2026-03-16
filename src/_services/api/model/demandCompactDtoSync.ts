@@ -6,17 +6,13 @@
  * OpenAPI spec version: 1.0
  */
 
-export interface AddAnomaliaDto {
-  demandaId: number;
-  uuid: string;
-  sku: string;
-  descricao: string;
-  lote: string;
-  tipo: string;
-  natureza: string;
-  causa: string;
-  tratado?: boolean;
-  quantidadeCaixas: number;
-  quantidadeUnidades: number;
-  imagens: string[];
-}
+export type DemandCompactDtoSync = typeof DemandCompactDtoSync[keyof typeof DemandCompactDtoSync];
+
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const DemandCompactDtoSync = {
+  sync: 'sync',
+  pending: 'pending',
+  error: 'error',
+  not_sync: 'not_sync',
+} as const;

@@ -8,10 +8,10 @@ import type { ItemData } from '../hooks/useDemandItems';
  * Card component for displaying a demand item
  * Shows SKU, description, badges (Extra, Checked, Divergence), and quantities
  */
-export function ItemCard({ 
+export function ItemCard({
   item,
-  onClick 
-}: { 
+  onClick
+}: {
   item: ItemData;
   onClick: () => void;
 }) {
@@ -63,9 +63,35 @@ export function ItemCard({
             <p className="text-sm text-muted-foreground line-clamp-2">
               {item.description}
             </p>
+            {item.isRedelivered && (
+              <div className="mt-2 text-xs text-muted-foreground">
+                <span className="font-medium">Esperado:</span>{' '}
+                {item.expectedBoxQuantity !== undefined && item.expectedBoxQuantity > 0 && (
+                  <span>{item.expectedBoxQuantity} cx</span>
+                )}
+                {item.expectedBoxQuantity !== undefined && item.expectedBoxQuantity > 0 && item.expectedQuantity > 0 && ' • '}
+                {item.expectedQuantity > 0 && <span>{item.expectedQuantity} un</span>}
+                {(!item.expectedBoxQuantity || item.expectedBoxQuantity === 0) && item.expectedQuantity === 0 && (
+                  <span className="text-muted-foreground">-</span>
+                )}
+              </div>
+            )}
             {item.isChecked && (
               <div className="mt-2 text-xs text-muted-foreground space-y-1">
                 <div>
+                  {item.isRedelivered && (
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      <span className="font-medium">Esperado:</span>{' '}
+                      {item.expectedBoxQuantity !== undefined && item.expectedBoxQuantity > 0 && (
+                        <span>{item.expectedBoxQuantity} cx</span>
+                      )}
+                      {item.expectedBoxQuantity !== undefined && item.expectedBoxQuantity > 0 && item.expectedQuantity > 0 && ' • '}
+                      {item.expectedQuantity > 0 && <span>{item.expectedQuantity} un</span>}
+                      {(!item.expectedBoxQuantity || item.expectedBoxQuantity === 0) && item.expectedQuantity === 0 && (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </div>
+                  )}
                   <span className="font-medium">Conferido:</span>{' '}
                   {item.boxQuantity !== undefined && item.boxQuantity > 0 && (
                     <span>{item.boxQuantity} cx</span>

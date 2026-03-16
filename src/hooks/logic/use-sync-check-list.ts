@@ -100,8 +100,6 @@ export function useSyncCheckList() {
             temperaturaBau: checklist.temperaturaBau || '',
             temperaturaProduto: checklist.temperaturaProduto || '',
             anomalias: checklist.anomalias || undefined,
-            fotoBauAberto: fileBauAberto?.name || '',
-            fotoBauFechado: fileBauFechado?.name || '',
           }
         });
 

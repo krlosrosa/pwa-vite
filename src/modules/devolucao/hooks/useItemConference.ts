@@ -1,9 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from '@tanstack/react-router';
 import { useConferenceStore } from '@/_shared/stores/conferenceStore';
-import { useProdutoStore } from '@/_shared/stores/produtoStore';
 import type { ConferenceRecord, AnomalyRecord } from '@/_shared/db/database';
-import { validateProductCode } from '../helpers/validateProductCode';
 
 /**
  * Hook for managing item conference page logic
@@ -18,13 +16,11 @@ export function useItemConference() {
   const [checkedQuantity, setCheckedQuantity] = useState(''); // quantidadeUnidades
   const [boxQuantity, setBoxQuantity] = useState(''); // quantidadeCaixas
   const [lote, setLote] = useState(''); // lote (obrigatório)
-  const [productValidationCode, setProductValidationCode] = useState(''); // código para validação do produto
   const [conference, setConference] = useState<ConferenceRecord | null>(null);
   const [anomalies, setAnomalies] = useState<AnomalyRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const { loadConference, saveConference, loadAnomaliesByItem, deleteAnomaly } = useConferenceStore();
-  const { produtos } = useProdutoStore();
 
   // Data initialization: Load conference and anomalies
   useEffect(() => {
@@ -87,7 +83,7 @@ export function useItemConference() {
   }, [conference]);
 
   /**
-   * Check if this is an extra item (doesn't need product validation)
+   * Check if this is an extra item
    */
   const isExtraItem = useMemo(() => {
     if (!conference) return false;
@@ -95,47 +91,8 @@ export function useItemConference() {
   }, [conference]);
 
   /**
-   * Validate product code if not extra item
-   * If item is already checked, validation is not required
-   */
-  const isValidProductCode = useMemo(() => {
-    // Extra items don't need validation
-    if (isExtraItem) return true;
-    
-    // If item is already checked, validation is not required
-    if (conference?.isChecked) {
-      return true;
-    }
-    
-    if (!conference || !productValidationCode.trim()) {
-      return false;
-    }
-
-    const validatedSku = validateProductCode(
-      productValidationCode,
-      produtos,
-      conference.sku
-    );
-
-    // If validateProductCode returns a SKU, it means it found a match
-    // We just need to check if it's not null
-    const isValid = validatedSku !== null;
-
-    console.log('[useItemConference isValidProductCode]', {
-      productValidationCode: `"${productValidationCode}"`,
-      conferenceSku: `"${conference.sku}"`,
-      validatedSku: `"${validatedSku}"`,
-      isValid,
-      isExtraItem,
-      isAlreadyChecked: conference?.isChecked,
-    });
-
-    return isValid;
-  }, [isExtraItem, conference, productValidationCode, produtos]);
-
-  /**
-   * Validation: lote is required, at least one quantity field must be filled,
-   * and product code validation (only for non-extra items)
+   * Validation: lote is required and at least one quantity field must be filled.
+   * SKU is the same as the item created in the list; no product code validation.
    */
   const isValid = useMemo(() => {
     const hasLote = lote.trim().length > 0;
@@ -143,17 +100,9 @@ export function useItemConference() {
     const caixas = parseInt(boxQuantity, 10);
     const hasUnidades = !isNaN(unidades) && unidades > 0;
     const hasCaixas = !isNaN(caixas) && caixas > 0;
-
     const hasQuantities = hasUnidades || hasCaixas;
-    
-    // For extra items, only lote and quantities are required
-    if (isExtraItem) {
-      return hasLote && hasQuantities;
-    }
-
-    // For regular items, also need product code validation
-    return hasLote && hasQuantities && isValidProductCode;
-  }, [lote, checkedQuantity, boxQuantity, isExtraItem, isValidProductCode]);
+    return hasLote && hasQuantities;
+  }, [lote, checkedQuantity, boxQuantity]);
 
   /**
    * Handle confirm conference
@@ -162,8 +111,6 @@ export function useItemConference() {
     if (!conference || !isValid) {
       if (!lote.trim()) {
         alert('O campo Lote é obrigatório.');
-      } else if (!isExtraItem && !isValidProductCode) {
-        alert('O código do produto não confere. Digite o SKU, EAN ou DUM correto.');
       } else {
         alert('Preencha pelo menos um dos campos: Quantidade de Unidades ou Quantidade de Caixas.');
       }
@@ -205,7 +152,7 @@ export function useItemConference() {
       console.error('Error saving conference:', error);
       alert('Erro ao salvar conferência. Tente novamente.');
     }
-  }, [conference, isValid, checkedQuantity, boxQuantity, lote, isExtraItem, isValidProductCode, saveConference, navigate, demandaId]);
+  }, [conference, isValid, checkedQuantity, boxQuantity, lote, saveConference, navigate, demandaId]);
 
   /**
    * Navigate to anomaly registration page
@@ -270,7 +217,6 @@ export function useItemConference() {
       setCheckedQuantity(conference.expectedQuantity.toString());
       setBoxQuantity('');
       setLote('');
-      setProductValidationCode('');
     } catch (error) {
       console.error('Error removing conference:', error);
       alert('Erro ao remover conferência. Tente novamente.');
@@ -286,14 +232,11 @@ export function useItemConference() {
     checkedQuantity,
     boxQuantity,
     lote,
-    productValidationCode,
     isExtraItem,
-    isValidProductCode,
     isValid,
     setCheckedQuantity,
     setBoxQuantity,
     setLote,
-    setProductValidationCode,
     handleQuickSetExpected,
     handleConfirmConference,
     handleRemoveConference,

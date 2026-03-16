@@ -57,8 +57,6 @@ export function useSyncManager() {
         demandaId: checklist.demandaId,
         data: {
           demandaId: checklist.demandaId,
-          fotoBauAberto: checklist.fotoBauAberto,
-          fotoBauFechado: checklist.fotoBauFechado,
           temperaturaBau: checklist.temperaturaBau,
           temperaturaProduto: checklist.temperaturaProduto,
           anomalias: checklist.anomalias,
