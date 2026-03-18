@@ -58,6 +58,8 @@ export function useSyncManager() {
         data: {
           demandaId: checklist.demandaId,
           temperaturaBau: checklist.temperaturaBau,
+          fotoBauAberto: checklist.fotoBauAberto,
+          fotoBauFechado: checklist.fotoBauFechado,
           temperaturaProduto: checklist.temperaturaProduto,
           anomalias: checklist.anomalias,
         },

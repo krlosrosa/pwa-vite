@@ -80,7 +80,6 @@ export function useSyncAnomalia() {
           if (!natureza || !tipo || !causa) continue;
           await mutateAsync({
             data: {
-              uuid: anomaly.id!.toString(),
               causa,
               descricao: anomaly.description,
               sku: anomaly.sku,
@@ -133,7 +132,6 @@ export function useSyncAnomalia() {
 
         await mutateAsync({
           data: {
-            uuid: crypto.randomUUID(),
             causa,
             descricao: anomaly.description,
             sku: anomaly.sku,

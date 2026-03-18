@@ -97,6 +97,8 @@ export function useSyncCheckList() {
           demandaId: checklist.demandaId,
           data: {
             demandaId: checklist.demandaId,
+            fotoBauAberto: bauAbertoPresignedUrl || '',
+            fotoBauFechado: bauFechadoPresignedUrl || '',
             temperaturaBau: checklist.temperaturaBau || '',
             temperaturaProduto: checklist.temperaturaProduto || '',
             anomalias: checklist.anomalias || undefined,

@@ -22,6 +22,8 @@ export function mapChecklistToApiDto(checklist: ChecklistRecord, demandaId: stri
     demandaId,
     temperaturaBau: checklist.temperaturaBau,
     temperaturaProduto: checklist.temperaturaProduto,
+    fotoBauAberto: checklist.fotoBauAberto,
+    fotoBauFechado: checklist.fotoBauFechado,
     anomalias: checklist.anomalias,
   };
 }

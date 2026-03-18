@@ -8,7 +8,6 @@
 
 export interface AddAnomaliaDto {
   demandaId: number;
-  uuid: string;
   sku: string;
   descricao: string;
   lote: string;
