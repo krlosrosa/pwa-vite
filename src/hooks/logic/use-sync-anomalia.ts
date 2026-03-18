@@ -133,7 +133,6 @@ export function useSyncAnomalia() {
 
         await mutateAsync({
           data: {
-            uuid: crypto.randomUUID(),
             causa,
             descricao: anomaly.description,
             sku: anomaly.sku,

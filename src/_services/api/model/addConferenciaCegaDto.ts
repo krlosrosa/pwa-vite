@@ -5,12 +5,10 @@
  * Documentação da API responsável por: gestão de produtividade, montagem e impressão de mapas de separação, sistema de devolução de estoque e contagem de inventário.
  * OpenAPI spec version: 1.0
  */
-import type { AddConferenciaCegaDtoUuid } from './addConferenciaCegaDtoUuid';
 
 export interface AddConferenciaCegaDto {
   descricao: string;
   sku: string;
-  uuid?: AddConferenciaCegaDtoUuid;
   quantidadeCaixas?: number;
   quantidadeUnidades?: number;
   lote: string;
