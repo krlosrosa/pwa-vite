@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { Camera, X } from 'lucide-react';
 import { Label } from '@/_shared/components/ui/label';
 import { Button } from '@/_shared/components/ui/button';
-import { convertFileToBase64 } from '@/_shared/lib/convertBase64';
+import { prepareImageBase64 } from '@/_shared/lib/prepareImage';
 
 /**
  * Component for capturing and displaying photos
@@ -30,15 +30,9 @@ export function PhotoCapture({
       return;
     }
 
-    // Validar tamanho (máximo 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      alert('A imagem deve ter no máximo 5MB');
-      return;
-    }
-
     setIsUploading(true);
     try {
-      const base64 = await convertFileToBase64(file);
+      const base64 = await prepareImageBase64(file);
       onChange(base64);
     } catch (error) {
       console.error('Erro ao converter arquivo:', error);

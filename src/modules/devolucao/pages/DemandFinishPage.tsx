@@ -64,13 +64,9 @@ export default function DemandFinishPage() {
       alert('Por favor, selecione uma imagem válida');
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      alert('A imagem deve ter no máximo 5MB');
-      return;
-    }
     try {
-      const { convertFileToBase64 } = await import('@/_shared/lib/convertBase64');
-      const base64 = await convertFileToBase64(file);
+      const { prepareImageBase64 } = await import('@/_shared/lib/prepareImage');
+      const base64 = await prepareImageBase64(file);
       const newPhotos = [...finishPhotos, base64];
       setFinishPhotos(newPhotos);
       await saveFinishPhotos(demandaId, newPhotos);

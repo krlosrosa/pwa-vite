@@ -25,15 +25,9 @@ export function AnomalyPhotosStep({
       return;
     }
 
-    // Validar tamanho (máximo 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      alert('A imagem deve ter no máximo 5MB');
-      return;
-    }
-
     try {
-      const { convertFileToBase64 } = await import('@/_shared/lib/convertBase64');
-      const base64 = await convertFileToBase64(file);
+      const { prepareImageBase64 } = await import('@/_shared/lib/prepareImage');
+      const base64 = await prepareImageBase64(file);
       onPhotoAdd(base64);
     } catch (error) {
       console.error('Erro ao converter arquivo:', error);
